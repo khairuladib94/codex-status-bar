@@ -1,0 +1,9 @@
+build/
+*.dmg
+.DS_Store
+node_modules/
+
+# Private maintainer notes (kept out of the public repo)
+CLAUDE.md
+ROADMAP.md
+.codex-plugin/marketplace.json

@@ -1,0 +1,7 @@
+{
+  "name": "codex-status-bar",
+  "description": "Menu bar status indicator for Codex: activity spinner, elapsed timer, and quota check.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/khairuladib94/codex-status-bar",
+  "license": "MIT"
+}

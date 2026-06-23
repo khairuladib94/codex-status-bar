@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/lifecycle.js\" start" }] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/update.js\" prompt" }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/update.js\" pre" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/update.js\" post" }] }
+    ],
+    "PermissionRequest": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/update.js\" permission" }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node \"${CODEX_PLUGIN_ROOT}/hooks/update.js\" stop" }] }
+    ]
+  }
+}
