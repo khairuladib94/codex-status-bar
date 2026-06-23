@@ -11,11 +11,10 @@ struct TooltipInfo: Equatable {
 final class TooltipWindow: NSPanel {
     private let titleLabel = NSTextField(labelWithString: "")
     private let projectLabel = NSTextField(labelWithString: "")
-    private let projectIcon = NSImageView()
 
-    init(iconColor: NSColor) {
+    init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 260, height: 64),
+            contentRect: NSRect(x: 0, y: 0, width: 260, height: 58),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -28,19 +27,15 @@ final class TooltipWindow: NSPanel {
         ignoresMouseEvents = true
 
         let glass = NSVisualEffectView(frame: contentView?.bounds ?? .zero)
-        glass.material = .popover
+        glass.material = .hudWindow
         glass.blendingMode = .behindWindow
         glass.state = .active
         glass.wantsLayer = true
         glass.layer?.cornerRadius = 13
         glass.layer?.cornerCurve = .continuous
         glass.layer?.borderWidth = 0.75
-        glass.layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
+        glass.layer?.borderColor = NSColor.white.withAlphaComponent(0.22).cgColor
         glass.autoresizingMask = [.width, .height]
-
-        projectIcon.image = TooltipWindow.folderIcon(color: iconColor)
-        projectIcon.imageScaling = .scaleProportionallyDown
-        projectIcon.setContentHuggingPriority(.required, for: .horizontal)
 
         titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         titleLabel.textColor = .labelColor
@@ -58,11 +53,11 @@ final class TooltipWindow: NSPanel {
         labels.alignment = .leading
         labels.distribution = .fill
 
-        let stack = NSStackView(views: [projectIcon, labels])
+        let stack = NSStackView(views: [labels])
         stack.orientation = .horizontal
-        stack.spacing = 10
+        stack.spacing = 0
         stack.alignment = .centerY
-        stack.edgeInsets = NSEdgeInsets(top: 10, left: 12, bottom: 10, right: 14)
+        stack.edgeInsets = NSEdgeInsets(top: 10, left: 18, bottom: 10, right: 18)
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         glass.addSubview(stack)
@@ -72,9 +67,7 @@ final class TooltipWindow: NSPanel {
             stack.trailingAnchor.constraint(equalTo: glass.trailingAnchor),
             stack.topAnchor.constraint(equalTo: glass.topAnchor),
             stack.bottomAnchor.constraint(equalTo: glass.bottomAnchor),
-            projectIcon.widthAnchor.constraint(equalToConstant: 24),
-            projectIcon.heightAnchor.constraint(equalToConstant: 24),
-            labels.widthAnchor.constraint(lessThanOrEqualToConstant: 260)
+            labels.widthAnchor.constraint(lessThanOrEqualToConstant: 320)
         ])
     }
 
@@ -84,7 +77,7 @@ final class TooltipWindow: NSPanel {
 
         let titleWidth = info.title.width(using: titleLabel.font ?? .systemFont(ofSize: 13))
         let projectWidth = projectLabel.stringValue.width(using: projectLabel.font ?? .systemFont(ofSize: 11))
-        let width = min(max(max(titleWidth, projectWidth) + 64, 180), 360)
+        let width = min(max(max(titleWidth, projectWidth) + 36, 170), 360)
         setContentSize(NSSize(width: width, height: 58))
     }
 
@@ -98,22 +91,6 @@ final class TooltipWindow: NSPanel {
         setFrameOrigin(origin)
     }
 
-    static func folderIcon(color: NSColor) -> NSImage {
-        let image = NSImage(size: NSSize(width: 28, height: 28), flipped: false) { rect in
-            let box = rect.insetBy(dx: 2, dy: 4)
-            let tab = NSBezierPath(roundedRect: NSRect(x: box.minX + 2, y: box.maxY - 9, width: 10, height: 6), xRadius: 2, yRadius: 2)
-            let body = NSBezierPath(roundedRect: NSRect(x: box.minX, y: box.minY, width: box.width, height: box.height - 4), xRadius: 4, yRadius: 4)
-            color.withAlphaComponent(0.92).setFill()
-            tab.fill()
-            color.withAlphaComponent(0.72).setFill()
-            body.fill()
-            NSColor.white.withAlphaComponent(0.65).setStroke()
-            body.lineWidth = 1
-            body.stroke()
-            return true
-        }
-        return image
-    }
 }
 
 final class StatusController: NSObject, NSMenuDelegate {
@@ -148,8 +125,10 @@ final class StatusController: NSObject, NSMenuDelegate {
     var activeColor: NSColor? = nil
     var lastRenderKey = ""
     var hoverTrackingArea: NSTrackingArea?
+    var hoverEventMonitors: [Any] = []
+    var hoverTooltipTimer: Timer?
     var currentTooltip: TooltipInfo?
-    lazy var tooltipWindow = TooltipWindow(iconColor: brand)
+    lazy var tooltipWindow = TooltipWindow()
 
     struct SessionStatus {
         let id: String
@@ -207,7 +186,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             case .system: return nil
             case .codex: return NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
             case .blue: return .systemBlue
-            case .purple: return .systemPurple
+            case .purple: return NSColor(srgbRed: 0.42, green: 0.38, blue: 0.95, alpha: 1)
             case .pink: return .systemPink
             case .orange: return .systemOrange
             case .red: return .systemRed
@@ -247,6 +226,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             button.action = #selector(statusItemClicked(_:))
             button.sendAction(on: [.leftMouseDown, .rightMouseUp])
         }
+        installHoverMonitoring()
         NSWorkspace.shared.notificationCenter.addObserver(
             self,
             selector: #selector(codexAppTerminated(_:)),
@@ -349,6 +329,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     @objc func quit() { NSApp.terminate(nil) }
 
     @objc func statusItemClicked(_ sender: NSStatusBarButton) {
+        hideTooltip()
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp {
             statusItem.popUpMenu(menu)
@@ -1059,11 +1040,80 @@ final class StatusController: NSObject, NSMenuDelegate {
         hoverTrackingArea = area
     }
 
-    func mouseEntered(with event: NSEvent) {
-        updateTooltipIfVisible(forceShow: true)
+    func installHoverMonitoring() {
+        guard hoverEventMonitors.isEmpty else { return }
+        let mask: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDown, .rightMouseDown]
+        if let monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: { [weak self] event in
+            DispatchQueue.main.async { self?.handleHoverEvent(event) }
+        }) {
+            hoverEventMonitors.append(monitor)
+        }
+        if let monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: { [weak self] event in
+            self?.handleHoverEvent(event)
+            return event
+        }) {
+            hoverEventMonitors.append(monitor)
+        }
     }
 
-    func mouseExited(with event: NSEvent) {
+    func handleHoverEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown || event.type == .rightMouseDown {
+            hideTooltip()
+            return
+        }
+        syncTooltipWithMouseLocation()
+    }
+
+    func syncTooltipWithMouseLocation() {
+        guard let button = statusItem.button,
+              let window = button.window else {
+            hideTooltip()
+            return
+        }
+        let screenFrame = window.convertToScreen(button.bounds).insetBy(dx: -2, dy: -4)
+        if screenFrame.contains(NSEvent.mouseLocation) {
+            scheduleTooltip()
+        } else {
+            hideTooltip()
+        }
+    }
+
+    @objc func mouseEntered(with event: NSEvent) {
+        scheduleTooltip()
+    }
+
+    @objc func mouseExited(with event: NSEvent) {
+        hideTooltip()
+    }
+
+    func scheduleTooltip() {
+        guard currentTooltip != nil else { return }
+        if tooltipWindow.isVisible {
+            updateTooltipIfVisible(forceShow: true)
+            return
+        }
+        guard hoverTooltipTimer == nil else { return }
+        hoverTooltipTimer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: false) { [weak self] _ in
+            self?.hoverTooltipTimer = nil
+            self?.showTooltipIfStillHovering()
+        }
+        if let timer = hoverTooltipTimer {
+            RunLoop.main.add(timer, forMode: .common)
+        }
+    }
+
+    func showTooltipIfStillHovering() {
+        guard let button = statusItem.button,
+              let window = button.window else { return }
+        let screenFrame = window.convertToScreen(button.bounds).insetBy(dx: -2, dy: -4)
+        if screenFrame.contains(NSEvent.mouseLocation) {
+            updateTooltipIfVisible(forceShow: true)
+        }
+    }
+
+    func hideTooltip() {
+        hoverTooltipTimer?.invalidate()
+        hoverTooltipTimer = nil
         tooltipWindow.orderOut(nil)
     }
 
