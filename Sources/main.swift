@@ -42,8 +42,6 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     let brand = NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
-    let amber = NSColor(srgbRed: 0.95, green: 0.73, blue: 0.18, alpha: 1) // "awaiting permission" yellow dot
-    let blue = NSColor(srgbRed: 0.13, green: 0.45, blue: 0.95, alpha: 1) // "needs input" blue dot
     let codexTemplate = StatusController.loadCodexTemplate()
     let codexActiveTemplates = StatusController.loadActiveCodexTemplates()
 
@@ -72,16 +70,13 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
     }
 
-    enum IconStyle: String {
-        case system, codex, ocean, violet, rose
+    enum ColorScheme: String {
+        case system, codex
 
         var title: String {
             switch self {
             case .system: return "System"
             case .codex: return "Codex Green"
-            case .ocean: return "Ocean Blue"
-            case .violet: return "Violet"
-            case .rose: return "Rose"
             }
         }
 
@@ -89,32 +84,16 @@ final class StatusController: NSObject, NSMenuDelegate {
             switch self {
             case .system: return nil
             case .codex: return NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
-            case .ocean: return NSColor(srgbRed: 0.11, green: 0.48, blue: 0.92, alpha: 1)
-            case .violet: return NSColor(srgbRed: 0.50, green: 0.32, blue: 0.92, alpha: 1)
-            case .rose: return NSColor(srgbRed: 0.90, green: 0.22, blue: 0.42, alpha: 1)
-            }
-        }
-    }
-
-    enum LabelStyle: String {
-        case status, projectStatus, statusProject
-
-        var title: String {
-            switch self {
-            case .status: return "Status Only"
-            case .projectStatus: return "Project + Status"
-            case .statusProject: return "Status + Project"
             }
         }
     }
 
     var transitionSpeed: TransitionSpeed = .normal
-    var iconStyle: IconStyle = .system
-    var labelStyle: LabelStyle = .status
+    var colorScheme: ColorScheme = .system
     var showStatusText = true
     var showTimer = true
     var showPausedTimer = true
-    var iconColor: NSColor? { iconStyle.color } // nil => render as an adaptive template
+    var iconColor: NSColor? { colorScheme.color } // nil => render as an adaptive system template
     var framesPerIcon: Int { transitionSpeed.framesPerIcon }
     let iconSwapDip: CGFloat = 0.18
     var frameCount: Int { max(1, codexActiveTemplates.count * framesPerIcon) }
@@ -125,13 +104,14 @@ final class StatusController: NSObject, NSMenuDelegate {
         let d = UserDefaults.standard
         if d.object(forKey: "showStatusText") != nil { showStatusText = d.bool(forKey: "showStatusText") }
         if d.object(forKey: "showTimer") != nil { showTimer = d.bool(forKey: "showTimer") }
-        if let raw = d.string(forKey: "iconStyle"), let style = IconStyle(rawValue: raw) {
-            iconStyle = style
-        } else if d.object(forKey: "iconSystem") != nil {
-            iconStyle = d.bool(forKey: "iconSystem") ? .system : .codex
-        }
-        if let raw = d.string(forKey: "labelStyle"), let style = LabelStyle(rawValue: raw) { labelStyle = style }
         if d.object(forKey: "showPausedTimer") != nil { showPausedTimer = d.bool(forKey: "showPausedTimer") }
+        if let raw = d.string(forKey: "colorScheme"), let scheme = ColorScheme(rawValue: raw) {
+            colorScheme = scheme
+        } else if d.object(forKey: "iconSystem") != nil {
+            colorScheme = d.bool(forKey: "iconSystem") ? .system : .codex
+        } else if let raw = d.string(forKey: "iconStyle"), raw == "codex" {
+            colorScheme = .codex
+        }
         if let raw = d.string(forKey: "transitionSpeed"), let speed = TransitionSpeed(rawValue: raw) { transitionSpeed = speed }
         menu.delegate = self
         if let button = statusItem.button {
@@ -192,29 +172,17 @@ final class StatusController: NSObject, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        let appearance = NSMenuItem(title: "Appearance", action: nil, keyEquivalent: "")
-        appearance.isEnabled = false
-        menu.addItem(appearance)
-
-        for style in [IconStyle.system, .codex, .ocean, .violet, .rose] {
-            let it = NSMenuItem(title: style.title, action: #selector(chooseIconStyle(_:)), keyEquivalent: "")
+        let colorItem = NSMenuItem(title: "Color", action: nil, keyEquivalent: "")
+        let colorMenu = NSMenu()
+        for scheme in [ColorScheme.system, .codex] {
+            let it = NSMenuItem(title: scheme.title, action: #selector(chooseColorScheme(_:)), keyEquivalent: "")
             it.target = self
-            it.representedObject = style.rawValue
-            it.state = iconStyle == style ? .on : .off
-            menu.addItem(it)
+            it.representedObject = scheme.rawValue
+            it.state = colorScheme == scheme ? .on : .off
+            colorMenu.addItem(it)
         }
-
-        let labelItem = NSMenuItem(title: "Label Detail", action: nil, keyEquivalent: "")
-        let labelMenu = NSMenu()
-        for style in [LabelStyle.status, .projectStatus, .statusProject] {
-            let it = NSMenuItem(title: style.title, action: #selector(chooseLabelStyle(_:)), keyEquivalent: "")
-            it.target = self
-            it.representedObject = style.rawValue
-            it.state = labelStyle == style ? .on : .off
-            labelMenu.addItem(it)
-        }
-        labelItem.submenu = labelMenu
-        menu.addItem(labelItem)
+        colorItem.submenu = colorMenu
+        menu.addItem(colorItem)
 
         let speedItem = NSMenuItem(title: "Animation Speed", action: nil, keyEquivalent: "")
         let speedMenu = NSMenu()
@@ -576,19 +544,12 @@ final class StatusController: NSObject, NSMenuDelegate {
         applyTitle()
     }
 
-    @objc func chooseIconStyle(_ sender: NSMenuItem) {
+    @objc func chooseColorScheme(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String,
-              let style = IconStyle(rawValue: raw) else { return }
-        iconStyle = style
-        UserDefaults.standard.set(style.rawValue, forKey: "iconStyle")
-        evaluate() // re-render the current state in the new color
-    }
-
-    @objc func chooseLabelStyle(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? String,
-              let style = LabelStyle(rawValue: raw) else { return }
-        labelStyle = style
-        UserDefaults.standard.set(style.rawValue, forKey: "labelStyle")
+              let scheme = ColorScheme(rawValue: raw) else { return }
+        colorScheme = scheme
+        UserDefaults.standard.set(scheme.rawValue, forKey: "colorScheme")
+        frameIdx = 0
         evaluate()
     }
 
@@ -621,55 +582,65 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func evaluate() {
+        let threads = recentThreads()
         let selected = visibleActiveSessionState() ?? effectiveState(from: current).map {
-            ($0.state, $0.label, $0.startedAt, current["project"] as? String ?? "")
+            ($0.state, $0.label, $0.startedAt, current["project"] as? String ?? "", current["sessionId"] as? String ?? "")
         }
         guard let selected else {
-            render(label: "", color: iconColor, animate: false, startedAt: 0)
+            render(label: "", color: iconColor, animate: false, startedAt: 0, tooltip: nil)
             return
         }
 
         let eff = selected.state
-        let label = displayLabel(statusLabel: selected.label, project: selected.project)
+        let label = displayLabel(statusLabel: selected.label)
         let started = selected.startedAt
+        let tooltip = tooltipText(
+            threadTitle: threadTitle(for: selected.sessionId, from: threads),
+            project: selected.project
+        )
 
         switch eff {
-        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started)
-        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started)
-        case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: amber, animate: false, startedAt: showPausedTimer ? started : 0, dot: true)
-        case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: blue, animate: false, startedAt: showPausedTimer ? started : 0, dot: true)
-        default:          render(label: "", color: iconColor, animate: false, startedAt: 0)
+        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip)
+        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip)
+        case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: .systemYellow, animate: false, startedAt: showPausedTimer ? started : 0, dot: true, tooltip: tooltip)
+        case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: .systemBlue, animate: false, startedAt: showPausedTimer ? started : 0, dot: true, tooltip: tooltip)
+        default:          render(label: "", color: iconColor, animate: false, startedAt: 0, tooltip: nil)
         }
     }
 
-    func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String)? {
+    func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String, sessionId: String)? {
         activeSessionStatuses()
-            .compactMap { status -> (state: String, label: String, startedAt: Double, project: String, sortTime: Double)? in
+            .compactMap { status -> (state: String, label: String, startedAt: Double, project: String, sessionId: String, sortTime: Double)? in
                 guard let eff = effectiveState(from: status.state) else { return nil }
                 let started = eff.startedAt
                 let ts = (status.state["ts"] as? NSNumber)?.doubleValue ?? 0
                 let sortTime = started > 0 ? started : (ts > 0 ? ts : status.modified.timeIntervalSince1970)
                 let project = status.state["project"] as? String ?? ""
-                return (eff.state, eff.label, started, project, sortTime)
+                let sessionId = status.state["sessionId"] as? String ?? status.id
+                return (eff.state, eff.label, started, project, sessionId, sortTime)
             }
             .sorted { $0.sortTime > $1.sortTime }
             .first
-            .map { ($0.state, $0.label, $0.startedAt, $0.project) }
+            .map { ($0.state, $0.label, $0.startedAt, $0.project, $0.sessionId) }
     }
 
-    func displayLabel(statusLabel: String, project: String) -> String {
-        let status = statusLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-        let projectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !projectName.isEmpty else { return status }
+    func displayLabel(statusLabel: String) -> String {
+        statusLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
-        switch labelStyle {
-        case .status:
-            return status
-        case .projectStatus:
-            return status.isEmpty ? projectName : "\(projectName) - \(status)"
-        case .statusProject:
-            return status.isEmpty ? projectName : "\(status) - \(projectName)"
+    func threadTitle(for sessionId: String, from threads: [RecentThread]) -> String? {
+        guard !sessionId.isEmpty else { return nil }
+        return threads.first { $0.id == sessionId }?.title
+    }
+
+    func tooltipText(threadTitle: String?, project: String) -> String? {
+        let title = (threadTitle ?? "Current Thread").trimmingCharacters(in: .whitespacesAndNewlines)
+        let projectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return projectName.isEmpty ? nil : projectName }
+        if projectName.isEmpty {
+            return title
         }
+        return "\(title)\n\(projectName)"
     }
 
     func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
@@ -820,11 +791,12 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     // MARK: render
 
-    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false) {
+    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false, tooltip: String? = nil) {
         guard let button = statusItem.button else { return }
         button.contentTintColor = nil // we paint the icon color ourselves; template-tint is unreliable
         let renderKey = [
             label,
+            tooltip ?? "",
             color?.hexKey ?? "system",
             animate ? "animate" : "still",
             dot ? "dot" : "mark",
@@ -832,6 +804,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         ].joined(separator: "|")
 
         if renderKey == lastRenderKey {
+            button.toolTip = tooltip
             applyTitle()
             return
         }
@@ -840,6 +813,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         activeBase = label
         activeColor = color
         self.startedAt = startedAt
+        button.toolTip = tooltip
 
         if animate {
             if animTimer == nil {
@@ -914,10 +888,47 @@ final class StatusController: NSObject, NSMenuDelegate {
         let path = bundle.path(forResource: "\(name)@2x", ofType: "png")
             ?? bundle.path(forResource: name, ofType: "png")
         if let path, let image = NSImage(contentsOfFile: path) {
-            image.isTemplate = true
-            return image
+            let cleaned = removingFaintAlpha(from: image)
+            cleaned.isTemplate = false
+            return cleaned
         }
         return nil
+    }
+
+    static func removingFaintAlpha(from image: NSImage, threshold: UInt8 = 18) -> NSImage {
+        var proposed = NSRect(origin: .zero, size: image.size)
+        guard let cgImage = image.cgImage(forProposedRect: &proposed, context: nil, hints: nil) else {
+            return image
+        }
+
+        let width = cgImage.width
+        let height = cgImage.height
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue)
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: bitmapInfo.rawValue
+        ) else {
+            return image
+        }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        for offset in stride(from: 0, to: pixels.count, by: bytesPerPixel) where pixels[offset + 3] <= threshold {
+            pixels[offset] = 0
+            pixels[offset + 1] = 0
+            pixels[offset + 2] = 0
+            pixels[offset + 3] = 0
+        }
+
+        guard let cleaned = context.makeImage() else { return image }
+        return NSImage(cgImage: cleaned, size: image.size)
     }
 
     func iconImage(color: NSColor?, frame: Int) -> NSImage {
@@ -984,9 +995,9 @@ final class StatusController: NSObject, NSMenuDelegate {
                 let dw = s * scale
                 let r = NSRect(x: (s - dw) / 2, y: (s - dw) / 2, width: dw, height: dw)
                 let canvas = NSRect(x: 0, y: 0, width: s, height: s)
+                mark.draw(in: r, from: .zero, operation: .sourceOver, fraction: 1.0)
                 c.setFill()
-                canvas.fill()
-                mark.draw(in: r, from: .zero, operation: .destinationIn, fraction: 1.0)
+                canvas.fill(using: .sourceIn)
             } else {
                 draw()
             }

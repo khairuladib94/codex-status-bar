@@ -47,12 +47,12 @@ Start a new Codex session after installing so Codex loads the hooks. Non-managed
 
 Left-click the menu bar icon for Codex actions: open Codex, jump to active or recent threads, start a new thread, and refresh quota. The quota heading uses the active Codex account email when available.
 
-Right-click the menu bar icon for Codex Status Bar settings.
+Hover the menu bar icon to see the active thread title and project name when the
+thread is not projectless.
 
-The settings menu includes appearance, label, and animation controls:
+Right-click the menu bar icon for Codex Status Bar settings:
 
-- **System**, **Codex Green**, **Ocean Blue**, **Violet**, or **Rose** icon color
-- **Label Detail** for status only, project + status, or status + project
+- **Color** for System or Codex Green
 - **Animation Speed**
 - **Show Status Text**
 - **Show Elapsed Time**
