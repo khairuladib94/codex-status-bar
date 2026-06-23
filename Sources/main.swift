@@ -30,6 +30,12 @@ final class StatusController: NSObject, NSMenuDelegate {
     var startedAt: Double = 0  // unix seconds the current turn began (0 = no clock)
     var activeColor: NSColor? = nil
 
+    struct SessionStatus {
+        let id: String
+        let state: [String: Any]
+        let modified: Date
+    }
+
     let brand = NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
     let amber = NSColor(srgbRed: 0.95, green: 0.73, blue: 0.18, alpha: 1) // "awaiting permission" yellow dot
     let codexTemplates: [NSImage] = StatusController.loadCodexTemplates()
@@ -512,10 +518,44 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func evaluate() {
-        let state = current["state"] as? String ?? "idle"
-        var label = current["label"] as? String ?? ""
-        let ts = (current["ts"] as? NSNumber)?.doubleValue ?? 0
-        let started = (current["startedAt"] as? NSNumber)?.doubleValue ?? 0
+        let selected = oldestActiveSessionState() ?? effectiveState(from: current)
+        guard let selected else {
+            render(label: "", color: iconColor, animate: false, startedAt: 0)
+            return
+        }
+
+        let eff = selected.state
+        let label = selected.label
+        let started = selected.startedAt
+
+        switch eff {
+        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started)
+        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started)
+        case "permission":render(label: "Awaiting permission", color: amber, animate: false, startedAt: 0, dot: true)
+        case "waiting":   render(label: label.isEmpty ? "Waiting" : label, color: iconColor, animate: false, startedAt: 0)
+        default:          render(label: "", color: iconColor, animate: false, startedAt: 0)
+        }
+    }
+
+    func oldestActiveSessionState() -> (state: String, label: String, startedAt: Double)? {
+        activeSessionStatuses()
+            .compactMap { status -> (state: String, label: String, startedAt: Double, sortTime: Double)? in
+                guard let eff = effectiveState(from: status.state) else { return nil }
+                let started = eff.startedAt
+                let ts = (status.state["ts"] as? NSNumber)?.doubleValue ?? 0
+                let sortTime = started > 0 ? started : (ts > 0 ? ts : status.modified.timeIntervalSince1970)
+                return (eff.state, eff.label, started, sortTime)
+            }
+            .sorted { $0.sortTime < $1.sortTime }
+            .first
+            .map { ($0.state, $0.label, $0.startedAt) }
+    }
+
+    func effectiveState(from stateObject: [String: Any]) -> (state: String, label: String, startedAt: Double)? {
+        let state = stateObject["state"] as? String ?? "idle"
+        var label = stateObject["label"] as? String ?? ""
+        let ts = (stateObject["ts"] as? NSNumber)?.doubleValue ?? 0
+        let started = (stateObject["startedAt"] as? NSNumber)?.doubleValue ?? 0
         let age = Date().timeIntervalSince1970 - ts
 
         var eff = state
@@ -524,7 +564,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         // transcript and the turn ends — detect that so we don't stay stuck on "thinking".
         if state == "thinking" || state == "tool" {
             if age > 900 { eff = "idle"; label = "" } // absolute safety net
-            else if let tr = current["transcript"] as? String,
+            else if let tr = stateObject["transcript"] as? String,
                     let last = lastLine(ofFileAt: tr),
                     last.contains("interrupted by user") {
                 eff = "idle"; label = ""
@@ -532,11 +572,33 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
 
         switch eff {
-        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started)
-        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started)
-        case "permission":render(label: "Awaiting permission", color: amber, animate: false, startedAt: 0, dot: true)
-        case "waiting":   render(label: label.isEmpty ? "Waiting" : label, color: iconColor, animate: false, startedAt: 0)
-        default:          render(label: "", color: iconColor, animate: false, startedAt: 0)
+        case "thinking", "tool", "permission", "waiting":
+            return (eff, label, started)
+        default:
+            return nil
+        }
+    }
+
+    func activeSessionStatuses(recentWithin seconds: TimeInterval = 30 * 60) -> [SessionStatus] {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return [] }
+        let staleCutoff = Date().addingTimeInterval(-30 * 60)
+        let recentCutoff = Date().addingTimeInterval(-seconds)
+
+        return files.compactMap { file -> SessionStatus? in
+            let path = (sessionsDir as NSString).appendingPathComponent(file)
+            guard let attrs = try? fm.attributesOfItem(atPath: path),
+                  let modified = attrs[.modificationDate] as? Date else { return nil }
+            if modified < staleCutoff {
+                try? fm.removeItem(atPath: path)
+                return nil
+            }
+            guard modified >= recentCutoff,
+                  let data = fm.contents(atPath: path),
+                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                return nil
+            }
+            return SessionStatus(id: file, state: obj, modified: modified)
         }
     }
 

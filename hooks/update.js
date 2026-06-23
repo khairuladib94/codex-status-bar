@@ -38,16 +38,16 @@ function toolName(payload) {
   return payload.tool_name || payload.tool || payload.toolName || payload.name || "";
 }
 
-function touchSession(payload) {
+function sessionPathFor(payload) {
   const id = safeId(payload.session_id || payload.thread_id || payload.threadId);
-  if (!id) return;
+  if (!id) return "";
   try {
     const sessDir = path.join(dir, "sessions.d");
     fs.mkdirSync(sessDir, { recursive: true });
-    const sessionPath = path.join(sessDir, id);
-    if (event === "stop") fs.rmSync(sessionPath, { force: true });
-    else fs.writeFileSync(sessionPath, "");
-  } catch {}
+    return path.join(sessDir, id);
+  } catch {
+    return "";
+  }
 }
 
 let raw = "";
@@ -74,10 +74,18 @@ function run() {
     } catch {}
   }
 
-  touchSession(p);
-
+  const sessionPath = sessionPathFor(p);
   let prev = {};
-  try { prev = JSON.parse(fs.readFileSync(statePath, "utf8")); } catch {}
+  try {
+    if (sessionPath) prev = JSON.parse(fs.readFileSync(sessionPath, "utf8"));
+  } catch {}
+  if (!prev || Object.keys(prev).length === 0) {
+    try {
+      const globalPrev = JSON.parse(fs.readFileSync(statePath, "utf8"));
+      const id = p.session_id || p.thread_id || p.threadId || "";
+      if (!id || globalPrev.sessionId === id) prev = globalPrev;
+    } catch {}
+  }
 
   const project = p.cwd ? path.basename(p.cwd) : prev.project || "";
   const ts = Math.floor(Date.now() / 1000);
@@ -129,6 +137,15 @@ function run() {
 
   try {
     fs.mkdirSync(dir, { recursive: true });
+    if (sessionPath) {
+      if (event === "stop") {
+        fs.rmSync(sessionPath, { force: true });
+      } else {
+        const tmpSession = `${sessionPath}.${process.pid}.tmp`;
+        fs.writeFileSync(tmpSession, JSON.stringify(out));
+        fs.renameSync(tmpSession, sessionPath);
+      }
+    }
     const tmp = `${statePath}.${process.pid}.tmp`;
     fs.writeFileSync(tmp, JSON.stringify(out));
     fs.renameSync(tmp, statePath);
