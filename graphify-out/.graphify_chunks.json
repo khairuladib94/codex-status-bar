@@ -1,0 +1,68 @@
+[
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/CHANGELOG.md",
+    "/Users/khairuladib/Projects/Codex Status Bar/README.md",
+    "/Users/khairuladib/Projects/Codex Status Bar/build.sh",
+    "/Users/khairuladib/Projects/Codex Status Bar/.codex-plugin/plugin.json",
+    "/Users/khairuladib/Projects/Codex Status Bar/Sources/SparkFrames.swift",
+    "/Users/khairuladib/Projects/Codex Status Bar/Sources/main.swift",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/hooks.json",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/install.js",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/lifecycle.js",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/quota.js",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/uninstall.js",
+    "/Users/khairuladib/Projects/Codex Status Bar/hooks/update.js",
+    "/Users/khairuladib/Projects/Codex Status Bar/tests/update.test.js"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/App_icon.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen01.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen01@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen02.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen02@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen03.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen03@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen04.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen04@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen05.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen05@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen06.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegen06@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexImagegenPreview.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexTemplate.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/codexTemplate@2x.png"
+  ],
+  [
+    "/Users/khairuladib/Projects/Codex Status Bar/assets/download.png"
+  ]
+]

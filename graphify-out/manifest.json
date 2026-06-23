@@ -1,0 +1,152 @@
+{
+  ".codex-plugin/plugin.json": {
+    "mtime": 1782183029.23989,
+    "ast_hash": "d84b393ec2a729d5a89842b7609e2aec",
+    "semantic_hash": ""
+  },
+  "Sources/SparkFrames.swift": {
+    "mtime": 1782176032.5974743,
+    "ast_hash": "a02772824b66f33b202c33978b883b51",
+    "semantic_hash": ""
+  },
+  "Sources/main.swift": {
+    "mtime": 1782196140.7215464,
+    "ast_hash": "3cd90e05131c9f4555bb14e8371187d9",
+    "semantic_hash": ""
+  },
+  "build.sh": {
+    "mtime": 1782186325.1114757,
+    "ast_hash": "3d7c3e299eaae471a4b9966054fab8b3",
+    "semantic_hash": ""
+  },
+  "hooks/hooks.json": {
+    "mtime": 1782175994.3504763,
+    "ast_hash": "e7b143447b13dfac641d7335c9ffcb88",
+    "semantic_hash": ""
+  },
+  "hooks/install.js": {
+    "mtime": 1782184075.7182674,
+    "ast_hash": "343b238d2a4d6c64203f950800caa362",
+    "semantic_hash": ""
+  },
+  "hooks/lifecycle.js": {
+    "mtime": 1782183757.3043633,
+    "ast_hash": "f465c8a3f0c27929b10df94cb46c38f4",
+    "semantic_hash": ""
+  },
+  "hooks/quota.js": {
+    "mtime": 1782183995.770519,
+    "ast_hash": "5a638e67791a0ee46d40053e74755dfa",
+    "semantic_hash": ""
+  },
+  "hooks/uninstall.js": {
+    "mtime": 1782175828.4440641,
+    "ast_hash": "147e206bfcb033f5c58cefb4b8cc8e12",
+    "semantic_hash": ""
+  },
+  "hooks/update.js": {
+    "mtime": 1782196269.2514071,
+    "ast_hash": "b84f8a0f47836dd53584eba7601c9be6",
+    "semantic_hash": ""
+  },
+  "tests/update.test.js": {
+    "mtime": 1782196277.0430682,
+    "ast_hash": "76ed502e38eb84aa96acd413a3a9cb0b",
+    "semantic_hash": ""
+  },
+  "CHANGELOG.md": {
+    "mtime": 1782183029.239654,
+    "ast_hash": "e70a8e0e0843ebbdeb4058d2a0620223",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1782195847.0582952,
+    "ast_hash": "b65613b6022b7147e7170d0c4d9e6489",
+    "semantic_hash": ""
+  },
+  "assets/App_icon.png": {
+    "mtime": 1782175977.6374886,
+    "ast_hash": "e24166cda79cffbb06fdb9293784a937",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen01.png": {
+    "mtime": 1782186481.2972121,
+    "ast_hash": "ae03470687e224cb325b318707c955dc",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen01@2x.png": {
+    "mtime": 1782186481.3030467,
+    "ast_hash": "d7a625e6df4088699a6b92effda33560",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen02.png": {
+    "mtime": 1782186481.3321211,
+    "ast_hash": "a885ad38744bfe7be7b0a8809d7a07ea",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen02@2x.png": {
+    "mtime": 1782186481.3395069,
+    "ast_hash": "bb87fa6e36fe9d62e424fc930320f005",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen03.png": {
+    "mtime": 1782186481.3656564,
+    "ast_hash": "a2521824ad7a88db6029206c29999b7b",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen03@2x.png": {
+    "mtime": 1782186481.3716178,
+    "ast_hash": "e0a4ad311cda89405c342d0fb6ca46c8",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen04.png": {
+    "mtime": 1782186481.3999436,
+    "ast_hash": "6ab75cc666e26262d5ca8eaf2b62cd92",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen04@2x.png": {
+    "mtime": 1782186481.405653,
+    "ast_hash": "cb4ca03a4a9b925bb9c9f827b7452554",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen05.png": {
+    "mtime": 1782186481.5931695,
+    "ast_hash": "43f036566abe60a0b787385c26124b98",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen05@2x.png": {
+    "mtime": 1782186481.5987277,
+    "ast_hash": "62e27bbb21f88bf3a27a437699c88ddd",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen06.png": {
+    "mtime": 1782186481.630157,
+    "ast_hash": "61e060a8d80ba0551bb5689a294606d3",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegen06@2x.png": {
+    "mtime": 1782186481.636497,
+    "ast_hash": "13a91e46051314315c3133b6243e3605",
+    "semantic_hash": ""
+  },
+  "assets/codexImagegenPreview.png": {
+    "mtime": 1782186481.6620188,
+    "ast_hash": "0d4a983f1b7bc55b711ca3053e75ac58",
+    "semantic_hash": ""
+  },
+  "assets/codexTemplate.png": {
+    "mtime": 1782181660.2853336,
+    "ast_hash": "25e14e44c02f0d58c2483842447f8480",
+    "semantic_hash": ""
+  },
+  "assets/codexTemplate@2x.png": {
+    "mtime": 1782181660.2873409,
+    "ast_hash": "9780c2529e9726d4de75bbffe79113da",
+    "semantic_hash": ""
+  },
+  "assets/download.png": {
+    "mtime": 1782175502.0,
+    "ast_hash": "5feb3ab79315159015571f46e4499c77",
+    "semantic_hash": ""
+  }
+}

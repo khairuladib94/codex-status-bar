@@ -66,11 +66,7 @@ function needsUserInput(message) {
     return true;
   }
 
-  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const last = lines[lines.length - 1] || "";
-  if (/\?\s*$/.test(last)) return true;
-
-  return /\b(which|what|where|when|who|how|do you want|would you like|should i|can you)\b[^?]{0,160}\?/.test(lower);
+  return /\b(which option|which path|which one|what should i|where should i|when should i|who should i|how should i|do you want me to proceed|should i proceed|should i continue|should i use|can you provide|can you send)\b[^?]{0,160}\?/.test(lower);
 }
 
 function tailText(file, bytes = 256 * 1024) {
@@ -182,22 +178,26 @@ function run() {
   let state = "idle";
   let label = "";
   let startedAt = prev.startedAt || 0;
+  let previousStartedAt = prev.previousStartedAt || prev.startedAt || 0;
 
   switch (event) {
     case "prompt":
       state = "thinking";
       label = "Thinking...";
       startedAt = ts;
+      previousStartedAt = startedAt;
       break;
     case "pre":
       state = "tool";
       label = TOOL_LABELS[tool] || (tool.startsWith("mcp__") ? "Using MCP" : "Using tool");
       if (!startedAt) startedAt = ts;
+      previousStartedAt = startedAt;
       break;
     case "post":
       state = "thinking";
       label = "Thinking...";
       if (!startedAt) startedAt = ts;
+      previousStartedAt = startedAt;
       break;
     case "permission":
       state = "permission";
@@ -229,6 +229,7 @@ function run() {
     sessionId: p.session_id || p.thread_id || p.threadId || "",
     transcript: p.transcript_path || p.transcript || prev.transcript || "",
     startedAt,
+    previousStartedAt,
     ts,
   };
 

@@ -1,0 +1,2949 @@
+{
+  "nodes": [
+    {
+      "id": "codex_plugin_plugin",
+      "label": "plugin.json",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "codex_plugin_plugin_name",
+      "label": "name",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L2",
+      "_origin": "ast"
+    },
+    {
+      "id": "codex_plugin_plugin_description",
+      "label": "description",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "codex_plugin_plugin_version",
+      "label": "version",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "codex_plugin_plugin_homepage",
+      "label": "homepage",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "codex_plugin_plugin_license",
+      "label": "license",
+      "file_type": "code",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_sparkframes",
+      "label": "SparkFrames.swift",
+      "file_type": "code",
+      "source_file": "Sources/SparkFrames.swift",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main",
+      "label": "main.swift",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_sessionstatus",
+      "label": "SessionStatus",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L34",
+      "_origin": "ast"
+    },
+    {
+      "id": "string",
+      "label": "String",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L35",
+      "_origin": "ast"
+    },
+    {
+      "id": "any",
+      "label": "Any",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L36",
+      "_origin": "ast"
+    },
+    {
+      "id": "date",
+      "label": "Date",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L37",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_transitionspeed",
+      "label": "TransitionSpeed",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L51",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_transitionspeed_slow",
+      "label": "slow",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_transitionspeed_normal",
+      "label": "normal",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_transitionspeed_fast",
+      "label": "fast",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "_origin": "ast"
+    },
+    {
+      "id": "int",
+      "label": "Int",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L62",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_init",
+      "label": "init()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L81",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_ensurehooksinstalled",
+      "label": "ensureHooksInstalled()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L112",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_installedhookhelperscurrent",
+      "label": "installedHookHelpersCurrent()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L129",
+      "_origin": "ast"
+    },
+    {
+      "id": "bool",
+      "label": "Bool",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L129",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_menuneedsupdate",
+      "label": "menuNeedsUpdate()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L144",
+      "_origin": "ast"
+    },
+    {
+      "id": "nsmenu",
+      "label": "NSMenu",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L144",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_quit",
+      "label": "quit()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L187",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_statusitemclicked",
+      "label": "statusItemClicked()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L189",
+      "_origin": "ast"
+    },
+    {
+      "id": "nsstatusbarbutton",
+      "label": "NSStatusBarButton",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L189",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_opencodex",
+      "label": "openCodex()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L200",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_codexcontextmenu",
+      "label": "codexContextMenu()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L207",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_addthreadsection",
+      "label": "addThreadSection()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "_origin": "ast"
+    },
+    {
+      "id": "recentthread",
+      "label": "RecentThread",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_threadmenuitem",
+      "label": "threadMenuItem()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L266",
+      "_origin": "ast"
+    },
+    {
+      "id": "nsmenuitem",
+      "label": "NSMenuItem",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L266",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_recentthread",
+      "label": "RecentThread",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L273",
+      "_origin": "ast"
+    },
+    {
+      "id": "sources_main_recentthreads",
+      "label": "recentThreads()",
+      "file_type": "code",
+      "source_file": "Sources/main.swift",
+      "source_location": "L279",
+      "_origin": "ast"
+    },
+    {
+      "id": "build",
+      "label": "build.sh",
+      "file_type": "code",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "_origin": "ast"
+    },
+    {
+      "id": "users_khairuladib_projects_codex_status_bar_build_sh__entry",
+      "label": "build.sh script",
+      "file_type": "code",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks",
+      "label": "hooks.json",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks",
+      "label": "hooks",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L2",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_sessionstart",
+      "label": "SessionStart",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_userpromptsubmit",
+      "label": "UserPromptSubmit",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_pretooluse",
+      "label": "PreToolUse",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_posttooluse",
+      "label": "PostToolUse",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_permissionrequest",
+      "label": "PermissionRequest",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_hooks_hooks_stop",
+      "label": "Stop",
+      "file_type": "code",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install",
+      "label": "install.js",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_sbdir",
+      "label": "sbDir",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_updatedest",
+      "label": "updateDest",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_lifecycledest",
+      "label": "lifecycleDest",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_apppathdest",
+      "label": "appPathDest",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_hookspath",
+      "label": "hooksPath",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_validapppath",
+      "label": "validAppPath()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_detectapppath",
+      "label": "detectAppPath()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L26",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_apppath",
+      "label": "appPath",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L42",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_quote",
+      "label": "quote()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L45",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_cmd",
+      "label": "cmd()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L46",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_life",
+      "label": "life()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L47",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_config",
+      "label": "config",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L49",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_stripours",
+      "label": "stripOurs()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L57",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_addunmatched",
+      "label": "addUnmatched()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L65",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_install_addmatched",
+      "label": "addMatched()",
+      "file_type": "code",
+      "source_file": "hooks/install.js",
+      "source_location": "L70",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle",
+      "label": "lifecycle.js",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_cp",
+      "label": "cp",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_dir",
+      "label": "dir",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_sessdir",
+      "label": "sessDir",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_apppathfile",
+      "label": "appPathFile",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_running",
+      "label": "running()",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_safeid",
+      "label": "safeId()",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L23",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_lifecycle_run",
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L32",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota",
+      "label": "quota.js",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_cp",
+      "label": "cp",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_cachepath",
+      "label": "cachePath",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_registrypath",
+      "label": "registryPath",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_authpath",
+      "label": "authPath",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_percent",
+      "label": "percent()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L16",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_normalizewindow",
+      "label": "normalizeWindow()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L21",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_normalizesnapshot",
+      "label": "normalizeSnapshot()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L36",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_normalizeusagestatus",
+      "label": "normalizeUsageStatus()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L54",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_activeaccountemail",
+      "label": "activeAccountEmail()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L72",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_chooseratelimit",
+      "label": "chooseRateLimit()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L98",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_callappserver",
+      "label": "callAppServer()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L113",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_readcache",
+      "label": "readCache()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L210",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_quota_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "hooks/quota.js",
+      "source_location": "L220",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall",
+      "label": "uninstall.js",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_cp",
+      "label": "cp",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_marker",
+      "label": "marker",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_hookspath",
+      "label": "hooksPath",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_uninstall_config",
+      "label": "config",
+      "file_type": "code",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L20",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update",
+      "label": "update.js",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_dir",
+      "label": "dir",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_statepath",
+      "label": "statePath",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_tool_labels",
+      "label": "TOOL_LABELS",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_safeid",
+      "label": "safeId()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L33",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_toolname",
+      "label": "toolName()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L37",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_compacttext",
+      "label": "compactText()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L41",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_permissionlabel",
+      "label": "permissionLabel()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L45",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_stripcodeblocks",
+      "label": "stripCodeBlocks()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L52",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_needsuserinput",
+      "label": "needsUserInput()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L56",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_tailtext",
+      "label": "tailText()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L76",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_textfromcontent",
+      "label": "textFromContent()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L93",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_assistantmessagefromrecord",
+      "label": "assistantMessageFromRecord()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L105",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_lastassistantmessagefromtranscript",
+      "label": "lastAssistantMessageFromTranscript()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L116",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_sessionpathfor",
+      "label": "sessionPathFor()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L130",
+      "_origin": "ast"
+    },
+    {
+      "id": "hooks_update_run",
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "hooks/update.js",
+      "source_location": "L149",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test",
+      "label": "update.test.js",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_assert",
+      "label": "assert",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L2",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_cp",
+      "label": "cp",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_fs",
+      "label": "fs",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_os",
+      "label": "os",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_repo",
+      "label": "repo",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_update",
+      "label": "update",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_runhook",
+      "label": "runHook()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_readjson",
+      "label": "readJson()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_makehome",
+      "label": "makeHome()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L22",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_payload",
+      "label": "payload()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L26",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_statepath",
+      "label": "statePath()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L35",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_update_test_sessionpath",
+      "label": "sessionPath()",
+      "file_type": "code",
+      "source_file": "tests/update.test.js",
+      "source_location": "L39",
+      "_origin": "ast"
+    }
+  ],
+  "edges": [
+    {
+      "source": "codex_plugin_plugin",
+      "target": "codex_plugin_plugin_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "codex_plugin_plugin",
+      "target": "codex_plugin_plugin_description",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "codex_plugin_plugin",
+      "target": "codex_plugin_plugin_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "codex_plugin_plugin",
+      "target": "codex_plugin_plugin_homepage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "codex_plugin_plugin",
+      "target": "codex_plugin_plugin_license",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".codex-plugin/plugin.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "cocoa",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_sessionstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_sessionstatus",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_sessionstatus",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_sessionstatus",
+      "target": "any",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_sessionstatus",
+      "target": "date",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L37",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_transitionspeed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "string",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "sources_main_transitionspeed_slow",
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "sources_main_transitionspeed_normal",
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "sources_main_transitionspeed_fast",
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_transitionspeed",
+      "target": "int",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L62",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_init",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_ensurehooksinstalled",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_installedhookhelperscurrent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_installedhookhelperscurrent",
+      "target": "bool",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L129",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_menuneedsupdate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_menuneedsupdate",
+      "target": "nsmenu",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L144",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_quit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L187",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_statusitemclicked",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_statusitemclicked",
+      "target": "nsstatusbarbutton",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L189",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_opencodex",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_codexcontextmenu",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L207",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_codexcontextmenu",
+      "target": "nsmenu",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L207",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_addthreadsection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "recentthread",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "nsmenu",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "bool",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L241",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_threadmenuitem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_threadmenuitem",
+      "target": "recentthread",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L266",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "sources_main_threadmenuitem",
+      "target": "nsmenuitem",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L266",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_recentthread",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_recentthread",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L274",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_recentthread",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L275",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main_recentthread",
+      "target": "string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L276",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "sources_main",
+      "target": "sources_main_recentthreads",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_recentthreads",
+      "target": "sources_main_recentthread",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L279",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "sources_main_init",
+      "target": "sources_main_transitionspeed",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_init",
+      "target": "sources_main_statusitemclicked",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_init",
+      "target": "sources_main_ensurehooksinstalled",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_menuneedsupdate",
+      "target": "nsmenuitem",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_menuneedsupdate",
+      "target": "nsmenu",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_statusitemclicked",
+      "target": "sources_main_codexcontextmenu",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_codexcontextmenu",
+      "target": "nsmenu",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_codexcontextmenu",
+      "target": "nsmenuitem",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_codexcontextmenu",
+      "target": "sources_main_recentthreads",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_codexcontextmenu",
+      "target": "sources_main_addthreadsection",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "nsmenuitem",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "sources_main_threadmenuitem",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_addthreadsection",
+      "target": "nsmenu",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_main_threadmenuitem",
+      "target": "nsmenuitem",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/main.swift",
+      "source_location": "L267",
+      "weight": 1.0
+    },
+    {
+      "source": "build",
+      "target": "users_khairuladib_projects_codex_status_bar_build_sh__entry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks",
+      "target": "hooks_hooks_hooks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_sessionstart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_userpromptsubmit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_pretooluse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_posttooluse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_permissionrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_hooks_hooks",
+      "target": "hooks_hooks_hooks_stop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/hooks.json",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_sbdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_updatedest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_lifecycledest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_apppathdest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_hookspath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_validapppath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_detectapppath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_apppath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_quote",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_life",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_config",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_stripours",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_addunmatched",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install",
+      "target": "hooks_install_addmatched",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install_detectapppath",
+      "target": "hooks_install_validapppath",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install_cmd",
+      "target": "hooks_install_quote",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install_life",
+      "target": "hooks_install_quote",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install_addunmatched",
+      "target": "hooks_install_stripours",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_install_addmatched",
+      "target": "hooks_install_stripours",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/install.js",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "child_process",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_cp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_sessdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_apppathfile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_running",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_safeid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle",
+      "target": "hooks_lifecycle_run",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle_run",
+      "target": "hooks_lifecycle_safeid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_lifecycle_run",
+      "target": "hooks_lifecycle_running",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/lifecycle.js",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "child_process",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_cp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_cachepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_registrypath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_authpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_percent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_normalizewindow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_normalizesnapshot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_normalizeusagestatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_activeaccountemail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_chooseratelimit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_callappserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_readcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota",
+      "target": "hooks_quota_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizewindow",
+      "target": "hooks_quota_percent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizesnapshot",
+      "target": "hooks_quota_normalizeusagestatus",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizesnapshot",
+      "target": "hooks_quota_activeaccountemail",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizesnapshot",
+      "target": "hooks_quota_normalizewindow",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizeusagestatus",
+      "target": "hooks_quota_activeaccountemail",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_normalizeusagestatus",
+      "target": "hooks_quota_normalizewindow",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_main",
+      "target": "hooks_quota_callappserver",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L223",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_main",
+      "target": "hooks_quota_normalizesnapshot",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_main",
+      "target": "hooks_quota_chooseratelimit",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_quota_main",
+      "target": "hooks_quota_readcache",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/quota.js",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "child_process",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_cp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_marker",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_hookspath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_uninstall",
+      "target": "hooks_uninstall_config",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/uninstall.js",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_statepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_tool_labels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_safeid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_toolname",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_compacttext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_permissionlabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_stripcodeblocks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_needsuserinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_tailtext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_textfromcontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_assistantmessagefromrecord",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_lastassistantmessagefromtranscript",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_sessionpathfor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update",
+      "target": "hooks_update_run",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_permissionlabel",
+      "target": "hooks_update_compacttext",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_needsuserinput",
+      "target": "hooks_update_stripcodeblocks",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_assistantmessagefromrecord",
+      "target": "hooks_update_textfromcontent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_lastassistantmessagefromtranscript",
+      "target": "hooks_update_tailtext",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_lastassistantmessagefromtranscript",
+      "target": "hooks_update_assistantmessagefromrecord",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_sessionpathfor",
+      "target": "hooks_update_safeid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_run",
+      "target": "hooks_update_toolname",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L161",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_run",
+      "target": "hooks_update_sessionpathfor",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_run",
+      "target": "hooks_update_permissionlabel",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_run",
+      "target": "hooks_update_lastassistantmessagefromtranscript",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_update_run",
+      "target": "hooks_update_needsuserinput",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/update.js",
+      "source_location": "L211",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "assert",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_assert",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "child_process",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_cp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "fs",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_fs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "os",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_os",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_repo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_update",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_runhook",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_readjson",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_makehome",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_payload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_statepath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_update_test",
+      "target": "tests_update_test_sessionpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/update.test.js",
+      "source_location": "L39",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

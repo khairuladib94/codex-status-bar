@@ -25,11 +25,15 @@ final class StatusController: NSObject, NSMenuDelegate {
     var observedCodexApp = false
     let launchGrace: TimeInterval = 5   // settle time after launch before we may quit
     let idleQuitDelay: TimeInterval = 3 // "not needed" must persist this long before quitting
+    let staleActivityAge: TimeInterval = 15 * 60
+    let staleWaitingAge: TimeInterval = 30 * 60
+    let stalePermissionAge: TimeInterval = 10 * 60
 
     var current: [String: Any] = [:]
     var activeBase = ""        // label without the elapsed clock
     var startedAt: Double = 0  // unix seconds the current turn began (0 = no clock)
     var activeColor: NSColor? = nil
+    var lastRenderKey = ""
 
     struct SessionStatus {
         let id: String
@@ -68,11 +72,49 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
     }
 
+    enum IconStyle: String {
+        case system, codex, ocean, violet, rose
+
+        var title: String {
+            switch self {
+            case .system: return "System"
+            case .codex: return "Codex Green"
+            case .ocean: return "Ocean Blue"
+            case .violet: return "Violet"
+            case .rose: return "Rose"
+            }
+        }
+
+        var color: NSColor? {
+            switch self {
+            case .system: return nil
+            case .codex: return NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
+            case .ocean: return NSColor(srgbRed: 0.11, green: 0.48, blue: 0.92, alpha: 1)
+            case .violet: return NSColor(srgbRed: 0.50, green: 0.32, blue: 0.92, alpha: 1)
+            case .rose: return NSColor(srgbRed: 0.90, green: 0.22, blue: 0.42, alpha: 1)
+            }
+        }
+    }
+
+    enum LabelStyle: String {
+        case status, projectStatus, statusProject
+
+        var title: String {
+            switch self {
+            case .status: return "Status Only"
+            case .projectStatus: return "Project + Status"
+            case .statusProject: return "Status + Project"
+            }
+        }
+    }
+
     var transitionSpeed: TransitionSpeed = .normal
+    var iconStyle: IconStyle = .system
+    var labelStyle: LabelStyle = .status
     var showStatusText = true
     var showTimer = true
-    var iconSystem = true // false = brand green; true = adaptive black/white (template image)
-    var iconColor: NSColor? { iconSystem ? nil : brand } // nil => render as an adaptive template
+    var showPausedTimer = true
+    var iconColor: NSColor? { iconStyle.color } // nil => render as an adaptive template
     var framesPerIcon: Int { transitionSpeed.framesPerIcon }
     let iconSwapDip: CGFloat = 0.18
     var frameCount: Int { max(1, codexActiveTemplates.count * framesPerIcon) }
@@ -83,7 +125,13 @@ final class StatusController: NSObject, NSMenuDelegate {
         let d = UserDefaults.standard
         if d.object(forKey: "showStatusText") != nil { showStatusText = d.bool(forKey: "showStatusText") }
         if d.object(forKey: "showTimer") != nil { showTimer = d.bool(forKey: "showTimer") }
-        if d.object(forKey: "iconSystem") != nil { iconSystem = d.bool(forKey: "iconSystem") }
+        if let raw = d.string(forKey: "iconStyle"), let style = IconStyle(rawValue: raw) {
+            iconStyle = style
+        } else if d.object(forKey: "iconSystem") != nil {
+            iconStyle = d.bool(forKey: "iconSystem") ? .system : .codex
+        }
+        if let raw = d.string(forKey: "labelStyle"), let style = LabelStyle(rawValue: raw) { labelStyle = style }
+        if d.object(forKey: "showPausedTimer") != nil { showPausedTimer = d.bool(forKey: "showPausedTimer") }
         if let raw = d.string(forKey: "transitionSpeed"), let speed = TransitionSpeed(rawValue: raw) { transitionSpeed = speed }
         menu.delegate = self
         if let button = statusItem.button {
@@ -148,13 +196,25 @@ final class StatusController: NSObject, NSMenuDelegate {
         appearance.isEnabled = false
         menu.addItem(appearance)
 
-        for (sys, name) in [(false, "Codex Green"), (true, "System")] {
-            let it = NSMenuItem(title: name, action: #selector(chooseColor(_:)), keyEquivalent: "")
+        for style in [IconStyle.system, .codex, .ocean, .violet, .rose] {
+            let it = NSMenuItem(title: style.title, action: #selector(chooseIconStyle(_:)), keyEquivalent: "")
             it.target = self
-            it.representedObject = sys
-            it.state = iconSystem == sys ? .on : .off
+            it.representedObject = style.rawValue
+            it.state = iconStyle == style ? .on : .off
             menu.addItem(it)
         }
+
+        let labelItem = NSMenuItem(title: "Label Detail", action: nil, keyEquivalent: "")
+        let labelMenu = NSMenu()
+        for style in [LabelStyle.status, .projectStatus, .statusProject] {
+            let it = NSMenuItem(title: style.title, action: #selector(chooseLabelStyle(_:)), keyEquivalent: "")
+            it.target = self
+            it.representedObject = style.rawValue
+            it.state = labelStyle == style ? .on : .off
+            labelMenu.addItem(it)
+        }
+        labelItem.submenu = labelMenu
+        menu.addItem(labelItem)
 
         let speedItem = NSMenuItem(title: "Animation Speed", action: nil, keyEquivalent: "")
         let speedMenu = NSMenu()
@@ -177,6 +237,11 @@ final class StatusController: NSObject, NSMenuDelegate {
         timerItem.target = self
         timerItem.state = showTimer ? .on : .off
         menu.addItem(timerItem)
+
+        let pausedTimerItem = NSMenuItem(title: "Show Paused Elapsed Time", action: #selector(togglePausedTimer), keyEquivalent: "")
+        pausedTimerItem.target = self
+        pausedTimerItem.state = showPausedTimer ? .on : .off
+        menu.addItem(pausedTimerItem)
 
         menu.addItem(.separator())
         let q = NSMenuItem(title: "Quit Codex Status Bar", action: #selector(quit), keyEquivalent: "q")
@@ -499,17 +564,32 @@ final class StatusController: NSObject, NSMenuDelegate {
         applyTitle()
     }
 
+    @objc func togglePausedTimer() {
+        showPausedTimer.toggle()
+        UserDefaults.standard.set(showPausedTimer, forKey: "showPausedTimer")
+        evaluate()
+    }
+
     @objc func toggleStatusText() {
         showStatusText.toggle()
         UserDefaults.standard.set(showStatusText, forKey: "showStatusText")
         applyTitle()
     }
 
-    @objc func chooseColor(_ sender: NSMenuItem) {
-        guard let sys = sender.representedObject as? Bool else { return }
-        iconSystem = sys
-        UserDefaults.standard.set(iconSystem, forKey: "iconSystem")
+    @objc func chooseIconStyle(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let style = IconStyle(rawValue: raw) else { return }
+        iconStyle = style
+        UserDefaults.standard.set(style.rawValue, forKey: "iconStyle")
         evaluate() // re-render the current state in the new color
+    }
+
+    @objc func chooseLabelStyle(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let style = LabelStyle(rawValue: raw) else { return }
+        labelStyle = style
+        UserDefaults.standard.set(style.rawValue, forKey: "labelStyle")
+        evaluate()
     }
 
     @objc func chooseTransitionSpeed(_ sender: NSMenuItem) {
@@ -541,37 +621,55 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func evaluate() {
-        let selected = oldestActiveSessionState() ?? effectiveState(from: current)
+        let selected = visibleActiveSessionState() ?? effectiveState(from: current).map {
+            ($0.state, $0.label, $0.startedAt, current["project"] as? String ?? "")
+        }
         guard let selected else {
             render(label: "", color: iconColor, animate: false, startedAt: 0)
             return
         }
 
         let eff = selected.state
-        let label = selected.label
+        let label = displayLabel(statusLabel: selected.label, project: selected.project)
         let started = selected.startedAt
 
         switch eff {
         case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started)
         case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started)
-        case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: amber, animate: false, startedAt: 0, dot: true)
-        case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: blue, animate: false, startedAt: 0, dot: true)
+        case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: amber, animate: false, startedAt: showPausedTimer ? started : 0, dot: true)
+        case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: blue, animate: false, startedAt: showPausedTimer ? started : 0, dot: true)
         default:          render(label: "", color: iconColor, animate: false, startedAt: 0)
         }
     }
 
-    func oldestActiveSessionState() -> (state: String, label: String, startedAt: Double)? {
+    func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String)? {
         activeSessionStatuses()
-            .compactMap { status -> (state: String, label: String, startedAt: Double, sortTime: Double)? in
-                guard let eff = effectiveState(from: status.state, expireStaleActivity: false) else { return nil }
+            .compactMap { status -> (state: String, label: String, startedAt: Double, project: String, sortTime: Double)? in
+                guard let eff = effectiveState(from: status.state) else { return nil }
                 let started = eff.startedAt
                 let ts = (status.state["ts"] as? NSNumber)?.doubleValue ?? 0
                 let sortTime = started > 0 ? started : (ts > 0 ? ts : status.modified.timeIntervalSince1970)
-                return (eff.state, eff.label, started, sortTime)
+                let project = status.state["project"] as? String ?? ""
+                return (eff.state, eff.label, started, project, sortTime)
             }
-            .sorted { $0.sortTime < $1.sortTime }
+            .sorted { $0.sortTime > $1.sortTime }
             .first
-            .map { ($0.state, $0.label, $0.startedAt) }
+            .map { ($0.state, $0.label, $0.startedAt, $0.project) }
+    }
+
+    func displayLabel(statusLabel: String, project: String) -> String {
+        let status = statusLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        let projectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !projectName.isEmpty else { return status }
+
+        switch labelStyle {
+        case .status:
+            return status
+        case .projectStatus:
+            return status.isEmpty ? projectName : "\(projectName) - \(status)"
+        case .statusProject:
+            return status.isEmpty ? projectName : "\(status) - \(projectName)"
+        }
     }
 
     func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
@@ -586,11 +684,25 @@ final class StatusController: NSObject, NSMenuDelegate {
         // In that case Codex may append an interrupted line to the
         // transcript and the turn ends — detect that so we don't stay stuck on "thinking".
         if state == "thinking" || state == "tool" {
-            if expireStaleActivity && age > 900 { eff = "idle"; label = "" } // absolute safety net
+            if expireStaleActivity && age > staleActivityAge { eff = "idle"; label = "" } // absolute safety net
             else if let tr = stateObject["transcript"] as? String,
                     let last = lastLine(ofFileAt: tr),
                     last.contains("interrupted by user") {
                 eff = "idle"; label = ""
+            }
+        }
+
+        if state == "permission", age > stalePermissionAge {
+            eff = "idle"; label = ""
+        }
+
+        if state == "waiting", age > staleWaitingAge {
+            eff = "idle"; label = ""
+        }
+
+        if (state == "permission" || state == "waiting"), eff == state {
+            if started == 0, let previousStarted = stateObject["previousStartedAt"] as? NSNumber {
+                return (eff, label, previousStarted.doubleValue)
             }
         }
 
@@ -711,6 +823,20 @@ final class StatusController: NSObject, NSMenuDelegate {
     func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false) {
         guard let button = statusItem.button else { return }
         button.contentTintColor = nil // we paint the icon color ourselves; template-tint is unreliable
+        let renderKey = [
+            label,
+            color?.hexKey ?? "system",
+            animate ? "animate" : "still",
+            dot ? "dot" : "mark",
+            String(Int(startedAt))
+        ].joined(separator: "|")
+
+        if renderKey == lastRenderKey {
+            applyTitle()
+            return
+        }
+
+        lastRenderKey = renderKey
         activeBase = label
         activeColor = color
         self.startedAt = startedAt
@@ -724,10 +850,10 @@ final class StatusController: NSObject, NSMenuDelegate {
         } else {
             animTimer?.invalidate(); animTimer = nil
             frameIdx = 0
-            button.image = dot ? dotIcon(color: color) : restingIcon(color: color)
+            button.image = dot ? dotIcon(color: color, pulse: startedAt > 0) : restingIcon(color: color)
         }
         applyTitle()
-        if button.image == nil { button.image = dot ? dotIcon(color: color) : restingIcon(color: color) }
+        if button.image == nil { button.image = dot ? dotIcon(color: color, pulse: startedAt > 0) : restingIcon(color: color) }
     }
 
     // Active work breathes each mark, dips small, then swaps to the next mark.
@@ -754,6 +880,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             string: title,
             attributes: [
                 .font: NSFont.monospacedDigitSystemFont(ofSize: 13, weight: .medium),
+                .kern: -0.1,
                 .foregroundColor: NSColor.labelColor
             ]
         )
@@ -894,9 +1021,13 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     // A small filled dot — used for the paused "awaiting permission" state.
-    func dotIcon(color: NSColor?) -> NSImage {
+    func dotIcon(color: NSColor?, pulse: Bool = false) -> NSImage {
         let s: CGFloat = 18, d: CGFloat = 9
         let img = NSImage(size: NSSize(width: s, height: s), flipped: false) { _ in
+            if pulse {
+                (color ?? .systemYellow).withAlphaComponent(0.18).setFill()
+                NSBezierPath(ovalIn: NSRect(x: 2.5, y: 2.5, width: 13, height: 13)).fill()
+            }
             (color ?? .systemYellow).setFill()
             NSBezierPath(ovalIn: NSRect(x: (s - d) / 2, y: (s - d) / 2, width: d, height: d)).fill()
             return true
@@ -922,6 +1053,19 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
         img.isTemplate = (color == nil) // nil => adaptive black/white in the menu bar
         return img
+    }
+}
+
+private extension NSColor {
+    var hexKey: String {
+        let c = usingColorSpace(.sRGB) ?? self
+        return String(
+            format: "%.3f,%.3f,%.3f,%.3f",
+            c.redComponent,
+            c.greenComponent,
+            c.blueComponent,
+            c.alphaComponent
+        )
     }
 }
 

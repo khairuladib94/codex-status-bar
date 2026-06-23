@@ -49,12 +49,14 @@ Left-click the menu bar icon for Codex actions: open Codex, jump to active or re
 
 Right-click the menu bar icon for Codex Status Bar settings.
 
-The settings menu includes appearance and animation controls:
+The settings menu includes appearance, label, and animation controls:
 
-- **Codex Green** / **System**
+- **System**, **Codex Green**, **Ocean Blue**, **Violet**, or **Rose** icon color
+- **Label Detail** for status only, project + status, or status + project
 - **Animation Speed**
 - **Show Status Text**
 - **Show Elapsed Time**
+- **Show Paused Elapsed Time** for permission/input pauses
 
 ## Quota Sources
 
@@ -80,7 +82,7 @@ The menu bar app polls that file and renders the current state. Active sessions 
 $CODEX_HOME/statusbar/sessions.d/
 ```
 
-Because Codex does not currently provide a documented `SessionEnd` hook, stale session files are expired by the app. If Codex is not running, only very recent hook activity keeps the icon alive briefly.
+Because Codex does not currently provide a documented `SessionEnd` hook, stale session files are expired by the app. If Codex is running, stale thinking/tool records are ignored after a safety window so an old thread cannot pin the menu bar to the wrong status or elapsed time. If Codex is not running, only very recent hook activity keeps the icon alive briefly.
 
 Codex does not currently provide a dedicated `NeedsInput` hook. The status bar infers that state from the `Stop` hook's `last_assistant_message`, including Plan Mode `<proposed_plan>` output and direct user questions.
 

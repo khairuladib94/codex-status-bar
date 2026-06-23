@@ -71,8 +71,11 @@ function sessionPath(home) {
 {
   const home = makeHome();
   runHook(home, "prompt", payload());
+  const startedAt = readJson(statePath(home)).startedAt;
   runHook(home, "stop", payload({ last_assistant_message: "<proposed_plan>\nPlan\n</proposed_plan>" }));
-  assert.strictEqual(readJson(statePath(home)).state, "waiting");
+  const state = readJson(statePath(home));
+  assert.strictEqual(state.state, "waiting");
+  assert.strictEqual(state.previousStartedAt, startedAt);
   assert.strictEqual(readJson(sessionPath(home)).state, "waiting");
 }
 
@@ -82,6 +85,14 @@ function sessionPath(home) {
   runHook(home, "stop", payload({ last_assistant_message: "Which option should I use?" }));
   assert.strictEqual(readJson(statePath(home)).state, "waiting");
   assert.strictEqual(readJson(sessionPath(home)).state, "waiting");
+}
+
+{
+  const home = makeHome();
+  runHook(home, "prompt", payload());
+  runHook(home, "stop", payload({ last_assistant_message: "The report is ready. Want me to trace it?" }));
+  assert.strictEqual(readJson(statePath(home)).state, "done");
+  assert.strictEqual(fs.existsSync(sessionPath(home)), false);
 }
 
 {
