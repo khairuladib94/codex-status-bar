@@ -902,6 +902,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             "canceled by user",
             "manually stopped",
             "stop requested",
+            "turn_aborted",
             "turn interrupted",
             "stream interrupted"
         ]
@@ -912,8 +913,15 @@ final class StatusController: NSObject, NSMenuDelegate {
             guard markers.contains(where: { lower.contains($0) }) else { continue }
             if let data = raw.data(using: .utf8),
                let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let stamp = isoTimestamp(obj["timestamp"] as? String),
-               stamp.timeIntervalSince1970 + 1 < ts {
+               eventIsAfterState(obj, since: ts) {
+                if let payload = obj["payload"] as? [String: Any],
+                   payload["type"] as? String == "turn_aborted" {
+                    return true
+                }
+            }
+            if let data = raw.data(using: .utf8),
+               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               !eventIsAfterState(obj, since: ts) {
                 continue
             }
             return true
