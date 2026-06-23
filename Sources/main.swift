@@ -32,21 +32,25 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     let brand = NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
     let amber = NSColor(srgbRed: 0.95, green: 0.73, blue: 0.18, alpha: 1) // "awaiting permission" yellow dot
-    let codexTemplate: NSImage = StatusController.loadCodexTemplate()
+    let codexTemplates: [NSImage] = StatusController.loadCodexTemplates()
+    var codexTemplate: NSImage { codexTemplates.first ?? NSImage(size: NSSize(width: 18, height: 18)) }
 
     var quotaLines: [String] = []
     var quotaLoading = false
+    var quotaRefreshID = 0
 
-    // Animation styles are kept as a persisted preference, but both render the
-    // Codex template mark so the menu bar never falls back to the old upstream art.
+    // Animation styles are kept as a persisted preference, and both render the
+    // Codex template family so active threads get a little more visual variety.
     enum AnimStyle: String { case web, code }
     var animStyle: AnimStyle = .code
     var showStatusText = true
     var showTimer = true
     var iconSystem = true // false = brand green; true = adaptive black/white (template image)
     var iconColor: NSColor? { iconSystem ? nil : brand } // nil => render as an adaptive template
-    let frameCount = 40
-    var fps: Double { 14 }
+    let framesPerIcon = 18
+    let iconSwapDip: CGFloat = 0.18
+    var frameCount: Int { max(1, codexTemplates.count * framesPerIcon) }
+    var fps: Double { Double(codexTemplates.count * framesPerIcon) / 4.2 }
 
     override init() {
         super.init()
@@ -59,7 +63,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         if let button = statusItem.button {
             button.target = self
             button.action = #selector(statusItemClicked(_:))
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.sendAction(on: [.leftMouseDown, .rightMouseUp])
         }
         render(label: "", color: iconColor, animate: false, startedAt: 0)
         let t = Timer(timeInterval: 0.4, repeats: true) { [weak self] _ in self?.tick() }
@@ -152,7 +156,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             return
         }
 
-        refreshQuotaNow()
+        startQuotaRefresh()
         statusItem.popUpMenu(menu)
     }
 
@@ -342,17 +346,28 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     @objc func checkQuota() {
-        guard !quotaLoading else { return }
-        refreshQuotaNow()
         menu.cancelTracking()
+        startQuotaRefresh()
         statusItem.popUpMenu(menu)
     }
 
-    func refreshQuotaNow() {
-        guard !quotaLoading else { return }
+    @discardableResult
+    func startQuotaRefresh() -> Bool {
+        guard !quotaLoading else { return false }
         quotaLoading = true
-        quotaLines = loadQuotaLines()
-        quotaLoading = false
+        quotaRefreshID += 1
+        let refreshID = quotaRefreshID
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let lines = self.loadQuotaLines()
+            DispatchQueue.main.async { [weak self] in
+                guard let self, refreshID == self.quotaRefreshID else { return }
+                self.quotaLines = lines
+                self.quotaLoading = false
+            }
+        }
+        return true
     }
 
     func loadQuotaLines() -> [String] {
@@ -651,38 +666,67 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     // MARK: icon
 
-    static func loadCodexTemplate() -> NSImage {
+    static func loadCodexTemplates() -> [NSImage] {
+        let names = ["codexTemplate"] + (1...6).map { String(format: "codexMutation%02d", $0) }
+        let images = names.compactMap(loadTemplate(named:))
+        return images.isEmpty ? [NSImage(size: NSSize(width: 18, height: 18))] : images
+    }
+
+    static func loadTemplate(named name: String) -> NSImage? {
         let bundle = Bundle.main
-        let path = bundle.path(forResource: "codexTemplate@2x", ofType: "png")
-            ?? bundle.path(forResource: "codexTemplate", ofType: "png")
+        let path = bundle.path(forResource: "\(name)@2x", ofType: "png")
+            ?? bundle.path(forResource: name, ofType: "png")
         if let path, let image = NSImage(contentsOfFile: path) {
             image.isTemplate = true
             return image
         }
-        return NSImage(size: NSSize(width: 18, height: 18))
+        return nil
     }
 
     func iconImage(color: NSColor?, frame: Int) -> NSImage {
-        let progress = CGFloat(frame % frameCount) / CGFloat(frameCount)
+        let local = (CGFloat(frame % framesPerIcon) + 0.5) / CGFloat(framesPerIcon)
+        let env = morphEnvelope(local)
+
         if animStyle == .web {
-            let wave = 0.5 + 0.5 * sin(progress * CGFloat.pi * 2)
-            let scale = 0.70 + 0.42 * wave
-            let rotation = 18 * sin(progress * CGFloat.pi * 2)
-            return codexIcon(color: color, scale: scale, rotationDegrees: rotation)
+            let scale = iconSwapDip + (1.10 - iconSwapDip) * env
+            let rotation = 10 * sin(local * CGFloat.pi * 2) * env
+            return codexIcon(template: iconTemplate(for: frame), color: color, scale: scale, rotationDegrees: rotation)
         }
-        let pulse = 0.92 + 0.12 * (0.5 + 0.5 * sin(progress * CGFloat.pi * 4))
-        return codexIcon(color: color, scale: pulse, rotationDegrees: progress * 360)
+        let scale = iconSwapDip + (1.04 - iconSwapDip) * env
+        let rotation = 7 * sin(local * CGFloat.pi * 2) * env
+        return codexIcon(template: iconTemplate(for: frame), color: color, scale: scale, rotationDegrees: rotation)
+    }
+
+    func morphEnvelope(_ local: CGFloat) -> CGFloat {
+        if local < 0.30 {
+            return smoothstep(local / 0.30)
+        }
+        if local > 0.70 {
+            return smoothstep((1 - local) / 0.30)
+        }
+        return 1
+    }
+
+    func smoothstep(_ value: CGFloat) -> CGFloat {
+        let u = max(0, min(1, value))
+        return u * u * (3 - 2 * u)
+    }
+
+    func iconTemplate(for frame: Int) -> NSImage {
+        guard !codexTemplates.isEmpty else { return codexTemplate }
+        return codexTemplates[(frame / framesPerIcon) % codexTemplates.count]
     }
 
     // Draw the Codex template mark scaled and rotated about center. A nil color
     // produces an adaptive template image for the menu bar.
-    func codexIcon(color: NSColor?, scale: CGFloat, rotationDegrees: CGFloat) -> NSImage {
+    func codexIcon(template: NSImage? = nil, color: NSColor?, scale: CGFloat, rotationDegrees: CGFloat) -> NSImage {
         let s: CGFloat = 18
+        let mark = template ?? codexTemplate
         let img = NSImage(size: NSSize(width: s, height: s), flipped: false) { _ in
             let draw = {
                 let dw = s * scale
                 let r = NSRect(x: (s - dw) / 2, y: (s - dw) / 2, width: dw, height: dw)
-                self.codexTemplate.draw(in: r, from: .zero, operation: .sourceOver, fraction: 1.0)
+                mark.draw(in: r, from: .zero, operation: .sourceOver, fraction: 1.0)
             }
             NSGraphicsContext.saveGraphicsState()
             let transform = NSAffineTransform()
@@ -691,10 +735,12 @@ final class StatusController: NSObject, NSMenuDelegate {
             transform.translateX(by: -s / 2, yBy: -s / 2)
             transform.concat()
             if let c = color {
-                let rect = NSRect(x: 0, y: 0, width: s, height: s)
+                let dw = s * scale
+                let r = NSRect(x: (s - dw) / 2, y: (s - dw) / 2, width: dw, height: dw)
+                let canvas = NSRect(x: 0, y: 0, width: s, height: s)
                 c.setFill()
-                rect.fill()
-                self.codexTemplate.draw(in: rect, from: .zero, operation: .destinationIn, fraction: 1.0)
+                canvas.fill()
+                mark.draw(in: r, from: .zero, operation: .destinationIn, fraction: 1.0)
             } else {
                 draw()
             }
