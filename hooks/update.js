@@ -38,6 +38,95 @@ function toolName(payload) {
   return payload.tool_name || payload.tool || payload.toolName || payload.name || "";
 }
 
+function compactText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function permissionLabel(payload, tool) {
+  const description = compactText(payload.tool_input && payload.tool_input.description);
+  if (description) return description.length > 64 ? `${description.slice(0, 61)}...` : description;
+  if (tool) return `Approve ${TOOL_LABELS[tool] || tool}`;
+  return "Awaiting permission";
+}
+
+function stripCodeBlocks(text) {
+  return String(text || "").replace(/```[\s\S]*?```/g, "");
+}
+
+function needsUserInput(message) {
+  const text = stripCodeBlocks(message).trim();
+  if (!text) return false;
+  const lower = text.toLowerCase();
+
+  if (/<\s*proposed_plan\b/i.test(text) || /<\s*\/\s*proposed_plan\s*>/i.test(text)) {
+    return true;
+  }
+
+  if (/\b(needs input|awaiting (your )?(input|response|reply)|please (confirm|choose|select|reply|provide|send)|choose one|pick one)\b/.test(lower)) {
+    return true;
+  }
+
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const last = lines[lines.length - 1] || "";
+  if (/\?\s*$/.test(last)) return true;
+
+  return /\b(which|what|where|when|who|how|do you want|would you like|should i|can you)\b[^?]{0,160}\?/.test(lower);
+}
+
+function tailText(file, bytes = 256 * 1024) {
+  try {
+    const stat = fs.statSync(file);
+    const fd = fs.openSync(file, "r");
+    try {
+      const size = Math.min(bytes, stat.size);
+      const buffer = Buffer.alloc(size);
+      fs.readSync(fd, buffer, 0, size, stat.size - size);
+      return buffer.toString("utf8");
+    } finally {
+      fs.closeSync(fd);
+    }
+  } catch {
+    return "";
+  }
+}
+
+function textFromContent(content) {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((part) => {
+      if (typeof part === "string") return part;
+      return part && (part.text || part.output_text || part.content || "");
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function assistantMessageFromRecord(record) {
+  const payload = record && record.payload;
+  if (!payload) return "";
+
+  if (payload.type === "agent_message" && payload.message) return payload.message;
+  if (payload.type === "message" && payload.role === "assistant") return textFromContent(payload.content);
+  if (payload.role === "assistant") return textFromContent(payload.content || payload.message);
+
+  return "";
+}
+
+function lastAssistantMessageFromTranscript(file) {
+  const text = tailText(file);
+  if (!text) return "";
+
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    try {
+      const message = assistantMessageFromRecord(JSON.parse(lines[i]));
+      if (message.trim()) return message;
+    } catch {}
+  }
+  return "";
+}
+
 function sessionPathFor(payload) {
   const id = safeId(payload.session_id || payload.thread_id || payload.threadId);
   if (!id) return "";
@@ -112,12 +201,20 @@ function run() {
       break;
     case "permission":
       state = "permission";
-      label = "Awaiting permission";
+      label = permissionLabel(p, tool);
       startedAt = 0;
       break;
     case "stop":
-      state = "done";
-      label = "Done";
+      const lastAssistantMessage = p.last_assistant_message
+        || p.lastAssistantMessage
+        || lastAssistantMessageFromTranscript(p.transcript_path || p.transcript || prev.transcript);
+      if (needsUserInput(lastAssistantMessage)) {
+        state = "waiting";
+        label = "Needs input";
+      } else {
+        state = "done";
+        label = "Done";
+      }
       startedAt = 0;
       break;
     default:
@@ -138,7 +235,7 @@ function run() {
   try {
     fs.mkdirSync(dir, { recursive: true });
     if (sessionPath) {
-      if (event === "stop") {
+      if (event === "stop" && state !== "waiting") {
         fs.rmSync(sessionPath, { force: true });
       } else {
         const tmpSession = `${sessionPath}.${process.pid}.tmp`;

@@ -39,7 +39,7 @@ mkdir -p "$APP/Contents/Resources"
 cp hooks/update.js hooks/lifecycle.js hooks/install.js hooks/uninstall.js hooks/quota.js "$APP/Contents/Resources/"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp assets/codexTemplate.png assets/codexTemplate@2x.png "$APP/Contents/Resources/"
-cp assets/codexMutation0*.png "$APP/Contents/Resources/"
+cp assets/codexImagegen0*.png "$APP/Contents/Resources/"
 
 # --- Signing / notarization ---
 # For a clean (no Gatekeeper warning) release you need, set up once on this Mac:

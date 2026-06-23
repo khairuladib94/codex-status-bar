@@ -1,6 +1,6 @@
 # Codex Status Bar
 
-A tiny macOS menu bar app for Codex. It shows when Codex is thinking, running a tool, or waiting for permission, and it can check remaining Codex quota from the menu.
+A tiny macOS menu bar app for Codex. It shows when Codex is thinking, running a tool, waiting for your input, or waiting for permission, and it can check remaining Codex quota from the menu.
 
 This project is adapted from [`m1ckc3s/claude-status-bar`](https://github.com/m1ckc3s/claude-status-bar). The app architecture is the same: a Swift menu bar app polls a local state file written by lightweight Node hook scripts.
 
@@ -8,10 +8,11 @@ This project is adapted from [`m1ckc3s/claude-status-bar`](https://github.com/m1
 
 - **Thinking / working**: animated Codex menu bar icon with optional status text and elapsed timer.
 - **Running a tool**: short labels such as `Editing`, `Reading`, `Running command`, or `Using MCP`.
+- **Needs input**: paused blue dot when a turn ends with a user-action prompt, including Plan Mode proposed plans.
 - **Awaiting permission**: paused yellow dot when Codex emits a `PermissionRequest` hook.
 - **Idle / done**: resting icon only, with no menu bar text.
-- **Quota on click**: left-click fetches current rate-limit buckets on demand and shows them immediately.
-- **Codex thread menu**: right-click shows a Codex-style menu with active/recent threads, new thread, open, and quit actions.
+- **Codex workflow menu**: left-click shows Open Codex, active/recent threads, New Thread, and quota refresh/details.
+- **Status bar settings**: right-click shows appearance and animation controls.
 
 ## Requirements
 
@@ -44,14 +45,14 @@ Start a new Codex session after installing so Codex loads the hooks. Non-managed
 
 ## Usage
 
-Left-click the menu bar icon to refresh and show quota. The quota heading uses the active Codex account email when available.
+Left-click the menu bar icon for Codex actions: open Codex, jump to active or recent threads, start a new thread, and refresh quota. The quota heading uses the active Codex account email when available.
 
-Right-click the menu bar icon for a Codex-style context menu with active/recent threads.
+Right-click the menu bar icon for Codex Status Bar settings.
 
-The left-click menu also includes display controls:
+The settings menu includes appearance and animation controls:
 
-- **Codex Morph** / **Codex Spin**
 - **Codex Green** / **System**
+- **Animation Speed**
 - **Show Status Text**
 - **Show Elapsed Time**
 
@@ -80,6 +81,8 @@ $CODEX_HOME/statusbar/sessions.d/
 ```
 
 Because Codex does not currently provide a documented `SessionEnd` hook, stale session files are expired by the app. If Codex is not running, only very recent hook activity keeps the icon alive briefly.
+
+Codex does not currently provide a dedicated `NeedsInput` hook. The status bar infers that state from the `Stop` hook's `last_assistant_message`, including Plan Mode `<proposed_plan>` output and direct user questions.
 
 ## Uninstall
 

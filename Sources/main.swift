@@ -22,6 +22,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     // we're already alive.
     let launchedAt = Date()
     var notNeededSince: Date?
+    var observedCodexApp = false
     let launchGrace: TimeInterval = 5   // settle time after launch before we may quit
     let idleQuitDelay: TimeInterval = 3 // "not needed" must persist this long before quitting
 
@@ -38,25 +39,44 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     let brand = NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
     let amber = NSColor(srgbRed: 0.95, green: 0.73, blue: 0.18, alpha: 1) // "awaiting permission" yellow dot
-    let codexTemplates: [NSImage] = StatusController.loadCodexTemplates()
-    var codexTemplate: NSImage { codexTemplates.first ?? NSImage(size: NSSize(width: 18, height: 18)) }
+    let blue = NSColor(srgbRed: 0.13, green: 0.45, blue: 0.95, alpha: 1) // "needs input" blue dot
+    let codexTemplate = StatusController.loadCodexTemplate()
+    let codexActiveTemplates = StatusController.loadActiveCodexTemplates()
 
     var quotaLines: [String] = []
     var quotaLoading = false
     var quotaRefreshID = 0
 
-    // Animation styles are kept as a persisted preference, and both render the
-    // Codex template family so active threads get a little more visual variety.
-    enum AnimStyle: String { case web, code }
-    var animStyle: AnimStyle = .code
+    // Active work cycles through generated Codex marks, shrinking before each swap.
+    enum TransitionSpeed: String {
+        case slow, normal, fast
+
+        var title: String {
+            switch self {
+            case .slow: return "Slow"
+            case .normal: return "Normal"
+            case .fast: return "Fast"
+            }
+        }
+
+        var framesPerIcon: Int {
+            switch self {
+            case .slow: return 72
+            case .normal: return 48
+            case .fast: return 30
+            }
+        }
+    }
+
+    var transitionSpeed: TransitionSpeed = .normal
     var showStatusText = true
     var showTimer = true
     var iconSystem = true // false = brand green; true = adaptive black/white (template image)
     var iconColor: NSColor? { iconSystem ? nil : brand } // nil => render as an adaptive template
-    let framesPerIcon = 18
+    var framesPerIcon: Int { transitionSpeed.framesPerIcon }
     let iconSwapDip: CGFloat = 0.18
-    var frameCount: Int { max(1, codexTemplates.count * framesPerIcon) }
-    var fps: Double { Double(codexTemplates.count * framesPerIcon) / 4.2 }
+    var frameCount: Int { max(1, codexActiveTemplates.count * framesPerIcon) }
+    let fps: Double = 24
 
     override init() {
         super.init()
@@ -64,13 +84,19 @@ final class StatusController: NSObject, NSMenuDelegate {
         if d.object(forKey: "showStatusText") != nil { showStatusText = d.bool(forKey: "showStatusText") }
         if d.object(forKey: "showTimer") != nil { showTimer = d.bool(forKey: "showTimer") }
         if d.object(forKey: "iconSystem") != nil { iconSystem = d.bool(forKey: "iconSystem") }
-        if let s = d.string(forKey: "animStyle"), let st = AnimStyle(rawValue: s) { animStyle = st }
+        if let raw = d.string(forKey: "transitionSpeed"), let speed = TransitionSpeed(rawValue: raw) { transitionSpeed = speed }
         menu.delegate = self
         if let button = statusItem.button {
             button.target = self
             button.action = #selector(statusItemClicked(_:))
             button.sendAction(on: [.leftMouseDown, .rightMouseUp])
         }
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(codexAppTerminated(_:)),
+            name: NSWorkspace.didTerminateApplicationNotification,
+            object: nil
+        )
         render(label: "", color: iconColor, animate: false, startedAt: 0)
         let t = Timer(timeInterval: 0.4, repeats: true) { [weak self] _ in self?.tick() }
         RunLoop.main.add(t, forMode: .common)
@@ -87,8 +113,8 @@ final class StatusController: NSObject, NSMenuDelegate {
         let d = UserDefaults.standard
         let current = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
         let installKey = "installedVersion:\(codexHome)"
-        guard d.string(forKey: installKey) != current,
-              let installer = Bundle.main.path(forResource: "install", ofType: "js") else { return }
+        guard d.string(forKey: installKey) != current || !installedHookHelpersCurrent() else { return }
+        guard let installer = Bundle.main.path(forResource: "install", ofType: "js") else { return }
         DispatchQueue.global().async {
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/zsh") // login shell so `node` is on PATH
@@ -100,34 +126,28 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
     }
 
+    func installedHookHelpersCurrent() -> Bool {
+        for name in ["update", "lifecycle"] {
+            guard let bundled = Bundle.main.path(forResource: name, ofType: "js") else { return false }
+            let installed = (codexHome as NSString).appendingPathComponent("statusbar/\(name).js")
+            guard let bundledData = FileManager.default.contents(atPath: bundled),
+                  let installedData = FileManager.default.contents(atPath: installed),
+                  bundledData == installedData else {
+                return false
+            }
+        }
+        return true
+    }
+
     // MARK: menu
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        let openItem = NSMenuItem(title: "Open Codex", action: #selector(openCodex), keyEquivalent: "")
-        openItem.target = self
-        menu.addItem(openItem)
+        let appearance = NSMenuItem(title: "Appearance", action: nil, keyEquivalent: "")
+        appearance.isEnabled = false
+        menu.addItem(appearance)
 
-        let quotaItem = NSMenuItem(title: quotaLoading ? "Checking Codex quota..." : "Refresh Codex quota", action: #selector(checkQuota), keyEquivalent: "")
-        quotaItem.target = self
-        menu.addItem(quotaItem)
-        for line in quotaLines {
-            let item = NSMenuItem(title: line, action: nil, keyEquivalent: "")
-            item.isEnabled = false
-            menu.addItem(item)
-        }
-        menu.addItem(.separator())
-
-        for (style, name) in [(AnimStyle.web, "Codex Morph"), (AnimStyle.code, "Codex Spin")] {
-            let it = NSMenuItem(title: name, action: #selector(chooseStyle(_:)), keyEquivalent: "")
-            it.target = self
-            it.representedObject = style.rawValue
-            it.state = animStyle == style ? .on : .off
-            menu.addItem(it)
-        }
-
-        menu.addItem(.separator())
         for (sys, name) in [(false, "Codex Green"), (true, "System")] {
             let it = NSMenuItem(title: name, action: #selector(chooseColor(_:)), keyEquivalent: "")
             it.target = self
@@ -136,7 +156,18 @@ final class StatusController: NSObject, NSMenuDelegate {
             menu.addItem(it)
         }
 
-        menu.addItem(.separator())
+        let speedItem = NSMenuItem(title: "Animation Speed", action: nil, keyEquivalent: "")
+        let speedMenu = NSMenu()
+        for speed in [TransitionSpeed.slow, .normal, .fast] {
+            let it = NSMenuItem(title: speed.title, action: #selector(chooseTransitionSpeed(_:)), keyEquivalent: "")
+            it.target = self
+            it.representedObject = speed.rawValue
+            it.state = transitionSpeed == speed ? .on : .off
+            speedMenu.addItem(it)
+        }
+        speedItem.submenu = speedMenu
+        menu.addItem(speedItem)
+
         let textItem = NSMenuItem(title: "Show Status Text", action: #selector(toggleStatusText), keyEquivalent: "")
         textItem.target = self
         textItem.state = showStatusText ? .on : .off
@@ -158,12 +189,12 @@ final class StatusController: NSObject, NSMenuDelegate {
     @objc func statusItemClicked(_ sender: NSStatusBarButton) {
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp {
-            statusItem.popUpMenu(codexContextMenu())
+            statusItem.popUpMenu(menu)
             return
         }
 
         startQuotaRefresh()
-        statusItem.popUpMenu(menu)
+        statusItem.popUpMenu(codexContextMenu())
     }
 
     @objc func openCodex() {
@@ -175,15 +206,19 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     func codexContextMenu() -> NSMenu {
         let codexMenu = NSMenu()
+        let openItem = NSMenuItem(title: "Open Codex", action: #selector(openCodex), keyEquivalent: "")
+        openItem.target = self
+        codexMenu.addItem(openItem)
+
         let activeId = current["sessionId"] as? String
         let threads = recentThreads()
         let activeThreads = activeThreads(from: threads, fallbackId: activeId)
 
-        addThreadSection(title: "Active", threads: activeThreads, to: codexMenu, firstSection: true)
+        addThreadSection(title: "Active Sessions", threads: activeThreads, to: codexMenu, firstSection: false)
 
         let activeIds = Set(activeThreads.map(\.id))
         let recent = threads.filter { !activeIds.contains($0.id) }
-        addThreadSection(title: "Recent", threads: Array(recent.prefix(8)), to: codexMenu, firstSection: codexMenu.items.isEmpty)
+        addThreadSection(title: "Recent Sessions", threads: Array(recent.prefix(8)), to: codexMenu, firstSection: codexMenu.items.isEmpty)
 
         if !codexMenu.items.isEmpty { codexMenu.addItem(.separator()) }
 
@@ -192,14 +227,14 @@ final class StatusController: NSObject, NSMenuDelegate {
         codexMenu.addItem(newThread)
 
         codexMenu.addItem(.separator())
-        let openItem = NSMenuItem(title: "Open Codex", action: #selector(openCodex), keyEquivalent: "")
-        openItem.target = self
-        codexMenu.addItem(openItem)
-
-        codexMenu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Quit Codex", action: #selector(quitCodex), keyEquivalent: "")
-        quitItem.target = self
-        codexMenu.addItem(quitItem)
+        let quotaItem = NSMenuItem(title: quotaLoading ? "Checking Codex quota..." : "Refresh Codex quota", action: #selector(checkQuota), keyEquivalent: "")
+        quotaItem.target = self
+        codexMenu.addItem(quotaItem)
+        for line in quotaLines {
+            let item = NSMenuItem(title: line, action: nil, keyEquivalent: "")
+            item.isEnabled = false
+            codexMenu.addItem(item)
+        }
         return codexMenu
     }
 
@@ -289,24 +324,10 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func activeSessionIds(recentWithin seconds: TimeInterval = 30 * 60) -> [String] {
-        let fm = FileManager.default
-        guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return [] }
-        let staleCutoff = Date().addingTimeInterval(-30 * 60)
-        let recentCutoff = Date().addingTimeInterval(-seconds)
-
-        return files.compactMap { file -> (String, Date)? in
-            let path = (sessionsDir as NSString).appendingPathComponent(file)
-            guard let attrs = try? fm.attributesOfItem(atPath: path),
-                  let modified = attrs[.modificationDate] as? Date else { return nil }
-            if modified < staleCutoff {
-                try? fm.removeItem(atPath: path)
-                return nil
-            }
-            guard modified >= recentCutoff else { return nil }
-            return (file, modified)
-        }
-        .sorted { $0.1 > $1.1 }
-        .map(\.0)
+        activeSessionStatuses(recentWithin: seconds)
+            .filter { effectiveState(from: $0.state) != nil }
+            .sorted { $0.modified > $1.modified }
+            .map(\.id)
     }
 
     func isCurrentStateActive() -> Bool {
@@ -352,9 +373,11 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     @objc func checkQuota() {
-        menu.cancelTracking()
         startQuotaRefresh()
-        statusItem.popUpMenu(menu)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.statusItem.popUpMenu(self.codexContextMenu())
+        }
     }
 
     @discardableResult
@@ -489,11 +512,11 @@ final class StatusController: NSObject, NSMenuDelegate {
         evaluate() // re-render the current state in the new color
     }
 
-    @objc func chooseStyle(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? String, let st = AnimStyle(rawValue: raw) else { return }
-        animStyle = st
-        UserDefaults.standard.set(raw, forKey: "animStyle")
-        animTimer?.invalidate(); animTimer = nil // recreate at the new style's fps
+    @objc func chooseTransitionSpeed(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let speed = TransitionSpeed(rawValue: raw) else { return }
+        transitionSpeed = speed
+        UserDefaults.standard.set(speed.rawValue, forKey: "transitionSpeed")
         frameIdx = 0
         evaluate()
     }
@@ -531,8 +554,8 @@ final class StatusController: NSObject, NSMenuDelegate {
         switch eff {
         case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started)
         case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started)
-        case "permission":render(label: "Awaiting permission", color: amber, animate: false, startedAt: 0, dot: true)
-        case "waiting":   render(label: label.isEmpty ? "Waiting" : label, color: iconColor, animate: false, startedAt: 0)
+        case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: amber, animate: false, startedAt: 0, dot: true)
+        case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: blue, animate: false, startedAt: 0, dot: true)
         default:          render(label: "", color: iconColor, animate: false, startedAt: 0)
         }
     }
@@ -540,7 +563,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     func oldestActiveSessionState() -> (state: String, label: String, startedAt: Double)? {
         activeSessionStatuses()
             .compactMap { status -> (state: String, label: String, startedAt: Double, sortTime: Double)? in
-                guard let eff = effectiveState(from: status.state) else { return nil }
+                guard let eff = effectiveState(from: status.state, expireStaleActivity: false) else { return nil }
                 let started = eff.startedAt
                 let ts = (status.state["ts"] as? NSNumber)?.doubleValue ?? 0
                 let sortTime = started > 0 ? started : (ts > 0 ? ts : status.modified.timeIntervalSince1970)
@@ -551,7 +574,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             .map { ($0.state, $0.label, $0.startedAt) }
     }
 
-    func effectiveState(from stateObject: [String: Any]) -> (state: String, label: String, startedAt: Double)? {
+    func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
         let state = stateObject["state"] as? String ?? "idle"
         var label = stateObject["label"] as? String ?? ""
         let ts = (stateObject["ts"] as? NSNumber)?.doubleValue ?? 0
@@ -563,7 +586,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         // In that case Codex may append an interrupted line to the
         // transcript and the turn ends — detect that so we don't stay stuck on "thinking".
         if state == "thinking" || state == "tool" {
-            if age > 900 { eff = "idle"; label = "" } // absolute safety net
+            if expireStaleActivity && age > 900 { eff = "idle"; label = "" } // absolute safety net
             else if let tr = stateObject["transcript"] as? String,
                     let last = lastLine(ofFileAt: tr),
                     last.contains("interrupted by user") {
@@ -582,6 +605,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     func activeSessionStatuses(recentWithin seconds: TimeInterval = 30 * 60) -> [SessionStatus] {
         let fm = FileManager.default
         guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return [] }
+        let keepWhileRunning = codexAppRunning()
         let staleCutoff = Date().addingTimeInterval(-30 * 60)
         let recentCutoff = Date().addingTimeInterval(-seconds)
 
@@ -589,11 +613,11 @@ final class StatusController: NSObject, NSMenuDelegate {
             let path = (sessionsDir as NSString).appendingPathComponent(file)
             guard let attrs = try? fm.attributesOfItem(atPath: path),
                   let modified = attrs[.modificationDate] as? Date else { return nil }
-            if modified < staleCutoff {
+            if !keepWhileRunning && modified < staleCutoff {
                 try? fm.removeItem(atPath: path)
                 return nil
             }
-            guard modified >= recentCutoff,
+            guard (keepWhileRunning || modified >= recentCutoff),
                   let data = fm.contents(atPath: path),
                   let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 return nil
@@ -609,11 +633,28 @@ final class StatusController: NSObject, NSMenuDelegate {
         NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == codexAppBundleID }
     }
 
-    // Active Codex sessions = recently touched files in sessions.d/. When Codex is
-    // not running, only very recent hook activity is allowed to keep the icon alive.
+    @objc func codexAppTerminated(_ notification: Notification) {
+        guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+              app.bundleIdentifier == codexAppBundleID else { return }
+        clearActiveSessions()
+        NSApp.terminate(nil)
+    }
+
+    func clearActiveSessions() {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return }
+        for file in files {
+            try? fm.removeItem(atPath: (sessionsDir as NSString).appendingPathComponent(file))
+        }
+    }
+
+    // Active Codex sessions = files in sessions.d/. While Codex is running, keep
+    // existing session records alive; once it is not running, only very recent hook
+    // activity may keep the icon alive.
     func sessionCount(recentWithin seconds: TimeInterval = 30 * 60) -> Int {
         let fm = FileManager.default
         guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return 0 }
+        let keepWhileRunning = codexAppRunning()
         let staleCutoff = Date().addingTimeInterval(-30 * 60)
         let recentCutoff = Date().addingTimeInterval(-seconds)
         var count = 0
@@ -621,9 +662,9 @@ final class StatusController: NSObject, NSMenuDelegate {
             let path = (sessionsDir as NSString).appendingPathComponent(file)
             guard let attrs = try? fm.attributesOfItem(atPath: path),
                   let modified = attrs[.modificationDate] as? Date else { continue }
-            if modified < staleCutoff {
+            if !keepWhileRunning && modified < staleCutoff {
                 try? fm.removeItem(atPath: path)
-            } else if modified >= recentCutoff {
+            } else if keepWhileRunning || modified >= recentCutoff {
                 count += 1
             }
         }
@@ -636,11 +677,14 @@ final class StatusController: NSObject, NSMenuDelegate {
         let now = Date()
         if now.timeIntervalSince(launchedAt) < launchGrace { return }
         if codexAppRunning() {
+            observedCodexApp = true
             _ = sessionCount()
             notNeededSince = nil
             return
         }
-        if sessionCount(recentWithin: 45) > 0 {
+        if observedCodexApp {
+            clearActiveSessions()
+        } else if sessionCount(recentWithin: 45) > 0 {
             notNeededSince = nil
             return
         }
@@ -686,7 +730,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         if button.image == nil { button.image = dot ? dotIcon(color: color) : restingIcon(color: color) }
     }
 
-    // Reproduce the in-chat thinking spark: step through the active style's frames.
+    // Active work breathes each mark, dips small, then swaps to the next mark.
     func animStep() {
         frameIdx = (frameIdx + 1) % frameCount
         statusItem.button?.image = iconImage(color: activeColor, frame: frameIdx)
@@ -728,10 +772,14 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     // MARK: icon
 
-    static func loadCodexTemplates() -> [NSImage] {
-        let names = ["codexTemplate"] + (1...6).map { String(format: "codexMutation%02d", $0) }
+    static func loadCodexTemplate() -> NSImage {
+        loadTemplate(named: "codexTemplate") ?? NSImage(size: NSSize(width: 18, height: 18))
+    }
+
+    static func loadActiveCodexTemplates() -> [NSImage] {
+        let names = (1...6).map { String(format: "codexImagegen%02d", $0) }
         let images = names.compactMap(loadTemplate(named:))
-        return images.isEmpty ? [NSImage(size: NSSize(width: 18, height: 18))] : images
+        return images.isEmpty ? [loadCodexTemplate()] : images
     }
 
     static func loadTemplate(named name: String) -> NSImage? {
@@ -747,24 +795,26 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     func iconImage(color: NSColor?, frame: Int) -> NSImage {
         let local = (CGFloat(frame % framesPerIcon) + 0.5) / CGFloat(framesPerIcon)
+        let progress = CGFloat(frame % frameCount) / CGFloat(frameCount)
         let env = morphEnvelope(local)
-
-        if animStyle == .web {
-            let scale = iconSwapDip + (1.10 - iconSwapDip) * env
-            let rotation = 10 * sin(local * CGFloat.pi * 2) * env
-            return codexIcon(template: iconTemplate(for: frame), color: color, scale: scale, rotationDegrees: rotation)
-        }
-        let scale = iconSwapDip + (1.04 - iconSwapDip) * env
+        let scale = iconSwapDip + (1.06 - iconSwapDip) * env
         let rotation = 7 * sin(local * CGFloat.pi * 2) * env
-        return codexIcon(template: iconTemplate(for: frame), color: color, scale: scale, rotationDegrees: rotation)
+        return codexIcon(
+            template: iconTemplate(for: frame),
+            color: color,
+            scale: scale,
+            rotationDegrees: rotation,
+            dotsPhase: progress,
+            dotsOpacity: 0.35 + 0.65 * env
+        )
     }
 
     func morphEnvelope(_ local: CGFloat) -> CGFloat {
-        if local < 0.30 {
-            return smoothstep(local / 0.30)
+        if local < 0.28 {
+            return smoothstep(local / 0.28)
         }
-        if local > 0.70 {
-            return smoothstep((1 - local) / 0.30)
+        if local > 0.72 {
+            return smoothstep((1 - local) / 0.28)
         }
         return 1
     }
@@ -775,13 +825,20 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func iconTemplate(for frame: Int) -> NSImage {
-        guard !codexTemplates.isEmpty else { return codexTemplate }
-        return codexTemplates[(frame / framesPerIcon) % codexTemplates.count]
+        guard !codexActiveTemplates.isEmpty else { return codexTemplate }
+        return codexActiveTemplates[(frame / framesPerIcon) % codexActiveTemplates.count]
     }
 
-    // Draw the Codex template mark scaled and rotated about center. A nil color
-    // produces an adaptive template image for the menu bar.
-    func codexIcon(template: NSImage? = nil, color: NSColor?, scale: CGFloat, rotationDegrees: CGFloat) -> NSImage {
+    // Draw the Codex template mark about center. A nil color produces an adaptive
+    // template image for the menu bar.
+    func codexIcon(
+        template: NSImage? = nil,
+        color: NSColor?,
+        scale: CGFloat,
+        rotationDegrees: CGFloat,
+        dotsPhase: CGFloat? = nil,
+        dotsOpacity: CGFloat = 1
+    ) -> NSImage {
         let s: CGFloat = 18
         let mark = template ?? codexTemplate
         let img = NSImage(size: NSSize(width: s, height: s), flipped: false) { _ in
@@ -807,6 +864,9 @@ final class StatusController: NSObject, NSMenuDelegate {
                 draw()
             }
             NSGraphicsContext.restoreGraphicsState()
+            if let dotsPhase {
+                self.drawOrbitDots(color: color, phase: dotsPhase, opacity: dotsOpacity, size: s)
+            }
             return true
         }
         img.isTemplate = (color == nil)
@@ -814,6 +874,24 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func restingIcon(color: NSColor?) -> NSImage { codexIcon(color: color, scale: 1.0, rotationDegrees: 0) }
+
+    func drawOrbitDots(color: NSColor?, phase: CGFloat, opacity: CGFloat, size: CGFloat) {
+        let center = NSPoint(x: size / 2, y: size / 2)
+        let base = color ?? .black
+        let radius: CGFloat = 7.1
+        let count = 4
+        for i in 0..<count {
+            let offset = CGFloat(i) / CGFloat(count)
+            let angle = (phase + offset) * CGFloat.pi * 2
+            let shimmer = 0.5 + 0.5 * sin((phase * 2 + offset) * CGFloat.pi * 2)
+            let diameter = 0.9 + 0.9 * shimmer
+            let alpha = max(0, min(1, opacity * (0.35 + 0.65 * shimmer)))
+            base.withAlphaComponent(alpha).setFill()
+            let x = center.x + cos(angle) * radius - diameter / 2
+            let y = center.y + sin(angle) * radius - diameter / 2
+            NSBezierPath(ovalIn: NSRect(x: x, y: y, width: diameter, height: diameter)).fill()
+        }
+    }
 
     // A small filled dot — used for the paused "awaiting permission" state.
     func dotIcon(color: NSColor?) -> NSImage {
