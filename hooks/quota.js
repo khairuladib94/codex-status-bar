@@ -11,6 +11,7 @@ const codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex");
 const cachePath = path.join(codexHome, "multi-auth", "quota-cache.json");
 const registryPath = path.join(codexHome, "accounts", "registry.json");
 const authPath = path.join(codexHome, "auth.json");
+const CACHE_MAX_AGE_MS = 10 * 60 * 1000;
 
 function percent(value) {
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
@@ -19,10 +20,11 @@ function percent(value) {
 
 function normalizeWindow(win) {
   if (!win || typeof win !== "object") return null;
-  const usedPercent = percent(win.usedPercent);
+  const usedPercent = percent(win.usedPercent ?? win.used_percent);
   if (usedPercent == null) return null;
-  const resetsAt = win.resetsAt ?? win.resetAtMs ?? null;
-  const windowDurationMins = win.windowDurationMins ?? win.windowMinutes ?? null;
+  const resetsAt = win.resetsAt ?? win.resetAtMs ?? win.reset_at ?? null;
+  const seconds = win.limit_window_seconds;
+  const windowDurationMins = win.windowDurationMins ?? win.windowMinutes ?? (typeof seconds === "number" ? seconds / 60 : null);
   return {
     usedPercent,
     remainingPercent: Math.max(0, 100 - usedPercent),
@@ -33,6 +35,7 @@ function normalizeWindow(win) {
 
 function normalizeSnapshot(snapshot, source) {
   if (!snapshot || typeof snapshot !== "object") return null;
+  if (snapshot.rate_limit) return normalizeUsageStatus(snapshot, source);
   return {
     source,
     accountEmail: activeAccountEmail(),
@@ -45,6 +48,24 @@ function normalizeSnapshot(snapshot, source) {
     individualLimit: snapshot.individualLimit || null,
     rateLimitReachedType: snapshot.rateLimitReachedType || null,
     updatedAt: snapshot.updatedAt || Date.now(),
+  };
+}
+
+function normalizeUsageStatus(status, source) {
+  const rateLimit = status.rate_limit;
+  if (!rateLimit || typeof rateLimit !== "object") return null;
+  return {
+    source,
+    accountEmail: activeAccountEmail(),
+    planType: status.plan_type || null,
+    limitId: null,
+    limitName: status.rate_limit_name || null,
+    primary: normalizeWindow(rateLimit.primary_window),
+    secondary: normalizeWindow(rateLimit.secondary_window),
+    credits: status.credits || null,
+    individualLimit: status.spend_control?.individual_limit || null,
+    rateLimitReachedType: status.rate_limit_reached_type || null,
+    updatedAt: Date.now(),
   };
 }
 
@@ -75,6 +96,7 @@ function activeAccountEmail() {
 }
 
 function chooseRateLimit(payload) {
+  if (payload && payload.rate_limit) return payload;
   const byId = payload && payload.rateLimitsByLimitId;
   if (byId && typeof byId === "object") {
     if (byId.codex) return byId.codex;
@@ -113,9 +135,9 @@ function readCache() {
   const data = JSON.parse(fs.readFileSync(cachePath, "utf8"));
   const accounts = Object.values(data.byAccountId || {});
   const ok = accounts
-    .filter((entry) => entry && entry.status === 200)
+    .filter((entry) => entry && entry.status === 200 && Date.now() - (entry.updatedAt || 0) <= CACHE_MAX_AGE_MS)
     .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-  if (ok.length === 0) throw new Error("quota cache has no successful entries");
+  if (ok.length === 0) throw new Error("quota cache has no fresh successful entries");
   return ok[0];
 }
 
@@ -147,7 +169,8 @@ function main() {
   process.stdout.write(JSON.stringify({
     source: "unavailable",
     error: errors.join("; "),
-    message: "Open Codex and run /status for live rate limits.",
+    message: "Live quota unavailable",
+    details: "Open Codex Usage remaining for current limits.",
   }) + "\n");
 }
 

@@ -336,7 +336,11 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     func formatQuota(_ obj: [String: Any]) -> [String] {
         if let message = obj["message"] as? String {
-            return [message]
+            var lines = [message]
+            if let details = obj["details"] as? String, !details.isEmpty {
+                lines.append(details)
+            }
+            return lines
         }
 
         var lines: [String] = []
