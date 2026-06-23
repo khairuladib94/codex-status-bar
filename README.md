@@ -47,12 +47,12 @@ Start a new Codex session after installing so Codex loads the hooks. Non-managed
 
 Left-click the menu bar icon for Codex actions: open Codex, jump to active or recent threads, start a new thread, and refresh quota. The quota heading uses the active Codex account email when available.
 
-Hover the menu bar icon to see the active thread title and project name when the
-thread is not projectless.
+Hover the menu bar icon to see a glass tooltip with the active thread title and
+project name.
 
 Right-click the menu bar icon for Codex Status Bar settings:
 
-- **Color** for System or Codex Green
+- **Color** for System, Codex Green, Blue, Purple, Pink, Orange, Red, or Graphite
 - **Animation Speed**
 - **Show Status Text**
 - **Show Elapsed Time**
@@ -82,7 +82,7 @@ The menu bar app polls that file and renders the current state. Active sessions 
 $CODEX_HOME/statusbar/sessions.d/
 ```
 
-Because Codex does not currently provide a documented `SessionEnd` hook, stale session files are expired by the app. If Codex is running, stale thinking/tool records are ignored after a safety window so an old thread cannot pin the menu bar to the wrong status or elapsed time. If Codex is not running, only very recent hook activity keeps the icon alive briefly.
+Because Codex does not currently provide a documented `SessionEnd` hook, stale session files are expired by the app. If Codex is running, stale thinking/tool records are ignored after a safety window so an old thread cannot pin the menu bar to the wrong status or elapsed time. The app also tails the active transcript for manual-interruption markers and final-answer records, so pressing Stop or finishing a turn can clear the status without waiting for the long stale timeout. If Codex is not running, only very recent hook activity keeps the icon alive briefly.
 
 Codex does not currently provide a dedicated `NeedsInput` hook. The status bar infers that state from the `Stop` hook's `last_assistant_message`, including Plan Mode `<proposed_plan>` output and direct user questions.
 

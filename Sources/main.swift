@@ -3,6 +3,119 @@ import Cocoa
 // Reads $CODEX_HOME/statusbar/state.json (written by Codex hooks) and renders a
 // compact activity indicator in the macOS menu bar. No window, no dock icon.
 
+struct TooltipInfo: Equatable {
+    let title: String
+    let project: String
+}
+
+final class TooltipWindow: NSPanel {
+    private let titleLabel = NSTextField(labelWithString: "")
+    private let projectLabel = NSTextField(labelWithString: "")
+    private let projectIcon = NSImageView()
+
+    init(iconColor: NSColor) {
+        super.init(
+            contentRect: NSRect(x: 0, y: 0, width: 260, height: 64),
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        isOpaque = false
+        backgroundColor = .clear
+        hasShadow = true
+        level = .statusBar
+        collectionBehavior = [.canJoinAllSpaces, .transient, .ignoresCycle]
+        ignoresMouseEvents = true
+
+        let glass = NSVisualEffectView(frame: contentView?.bounds ?? .zero)
+        glass.material = .popover
+        glass.blendingMode = .behindWindow
+        glass.state = .active
+        glass.wantsLayer = true
+        glass.layer?.cornerRadius = 13
+        glass.layer?.cornerCurve = .continuous
+        glass.layer?.borderWidth = 0.75
+        glass.layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
+        glass.autoresizingMask = [.width, .height]
+
+        projectIcon.image = TooltipWindow.folderIcon(color: iconColor)
+        projectIcon.imageScaling = .scaleProportionallyDown
+        projectIcon.setContentHuggingPriority(.required, for: .horizontal)
+
+        titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        titleLabel.textColor = .labelColor
+        titleLabel.lineBreakMode = .byTruncatingTail
+        titleLabel.maximumNumberOfLines = 1
+
+        projectLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        projectLabel.textColor = .secondaryLabelColor
+        projectLabel.lineBreakMode = .byTruncatingTail
+        projectLabel.maximumNumberOfLines = 1
+
+        let labels = NSStackView(views: [titleLabel, projectLabel])
+        labels.orientation = .vertical
+        labels.spacing = 2
+        labels.alignment = .leading
+        labels.distribution = .fill
+
+        let stack = NSStackView(views: [projectIcon, labels])
+        stack.orientation = .horizontal
+        stack.spacing = 10
+        stack.alignment = .centerY
+        stack.edgeInsets = NSEdgeInsets(top: 10, left: 12, bottom: 10, right: 14)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        glass.addSubview(stack)
+        contentView = glass
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: glass.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: glass.trailingAnchor),
+            stack.topAnchor.constraint(equalTo: glass.topAnchor),
+            stack.bottomAnchor.constraint(equalTo: glass.bottomAnchor),
+            projectIcon.widthAnchor.constraint(equalToConstant: 24),
+            projectIcon.heightAnchor.constraint(equalToConstant: 24),
+            labels.widthAnchor.constraint(lessThanOrEqualToConstant: 260)
+        ])
+    }
+
+    func update(info: TooltipInfo) {
+        titleLabel.stringValue = info.title
+        projectLabel.stringValue = info.project.isEmpty ? "No project" : info.project
+
+        let titleWidth = info.title.width(using: titleLabel.font ?? .systemFont(ofSize: 13))
+        let projectWidth = projectLabel.stringValue.width(using: projectLabel.font ?? .systemFont(ofSize: 11))
+        let width = min(max(max(titleWidth, projectWidth) + 64, 180), 360)
+        setContentSize(NSSize(width: width, height: 58))
+    }
+
+    func position(near rect: NSRect) {
+        guard let screen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? NSScreen.main else { return }
+        let size = frame.size
+        var origin = NSPoint(x: rect.midX - size.width / 2, y: rect.minY - size.height - 8)
+        if origin.x < screen.visibleFrame.minX + 8 { origin.x = screen.visibleFrame.minX + 8 }
+        if origin.x + size.width > screen.visibleFrame.maxX - 8 { origin.x = screen.visibleFrame.maxX - size.width - 8 }
+        if origin.y < screen.visibleFrame.minY + 8 { origin.y = rect.maxY + 8 }
+        setFrameOrigin(origin)
+    }
+
+    static func folderIcon(color: NSColor) -> NSImage {
+        let image = NSImage(size: NSSize(width: 28, height: 28), flipped: false) { rect in
+            let box = rect.insetBy(dx: 2, dy: 4)
+            let tab = NSBezierPath(roundedRect: NSRect(x: box.minX + 2, y: box.maxY - 9, width: 10, height: 6), xRadius: 2, yRadius: 2)
+            let body = NSBezierPath(roundedRect: NSRect(x: box.minX, y: box.minY, width: box.width, height: box.height - 4), xRadius: 4, yRadius: 4)
+            color.withAlphaComponent(0.92).setFill()
+            tab.fill()
+            color.withAlphaComponent(0.72).setFill()
+            body.fill()
+            NSColor.white.withAlphaComponent(0.65).setStroke()
+            body.lineWidth = 1
+            body.stroke()
+            return true
+        }
+        return image
+    }
+}
+
 final class StatusController: NSObject, NSMenuDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     let menu = NSMenu()
@@ -34,6 +147,9 @@ final class StatusController: NSObject, NSMenuDelegate {
     var startedAt: Double = 0  // unix seconds the current turn began (0 = no clock)
     var activeColor: NSColor? = nil
     var lastRenderKey = ""
+    var hoverTrackingArea: NSTrackingArea?
+    var currentTooltip: TooltipInfo?
+    lazy var tooltipWindow = TooltipWindow(iconColor: brand)
 
     struct SessionStatus {
         let id: String
@@ -70,13 +186,19 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
     }
 
-    enum ColorScheme: String {
-        case system, codex
+    enum ColorScheme: String, CaseIterable {
+        case system, codex, blue, purple, pink, orange, red, graphite
 
         var title: String {
             switch self {
             case .system: return "System"
             case .codex: return "Codex Green"
+            case .blue: return "Blue"
+            case .purple: return "Purple"
+            case .pink: return "Pink"
+            case .orange: return "Orange"
+            case .red: return "Red"
+            case .graphite: return "Graphite"
             }
         }
 
@@ -84,6 +206,12 @@ final class StatusController: NSObject, NSMenuDelegate {
             switch self {
             case .system: return nil
             case .codex: return NSColor(srgbRed: 0.06, green: 0.62, blue: 0.49, alpha: 1)
+            case .blue: return .systemBlue
+            case .purple: return .systemPurple
+            case .pink: return .systemPink
+            case .orange: return .systemOrange
+            case .red: return .systemRed
+            case .graphite: return NSColor(srgbRed: 0.58, green: 0.60, blue: 0.64, alpha: 1)
             }
         }
     }
@@ -174,11 +302,12 @@ final class StatusController: NSObject, NSMenuDelegate {
 
         let colorItem = NSMenuItem(title: "Color", action: nil, keyEquivalent: "")
         let colorMenu = NSMenu()
-        for scheme in [ColorScheme.system, .codex] {
+        for scheme in ColorScheme.allCases {
             let it = NSMenuItem(title: scheme.title, action: #selector(chooseColorScheme(_:)), keyEquivalent: "")
             it.target = self
             it.representedObject = scheme.rawValue
             it.state = colorScheme == scheme ? .on : .off
+            it.image = colorSwatch(for: scheme.color)
             colorMenu.addItem(it)
         }
         colorItem.submenu = colorMenu
@@ -594,7 +723,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         let eff = selected.state
         let label = displayLabel(statusLabel: selected.label)
         let started = selected.startedAt
-        let tooltip = tooltipText(
+        let tooltip = tooltipInfo(
             threadTitle: threadTitle(for: selected.sessionId, from: threads),
             project: selected.project
         )
@@ -633,14 +762,11 @@ final class StatusController: NSObject, NSMenuDelegate {
         return threads.first { $0.id == sessionId }?.title
     }
 
-    func tooltipText(threadTitle: String?, project: String) -> String? {
+    func tooltipInfo(threadTitle: String?, project: String) -> TooltipInfo? {
         let title = (threadTitle ?? "Current Thread").trimmingCharacters(in: .whitespacesAndNewlines)
         let projectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty else { return projectName.isEmpty ? nil : projectName }
-        if projectName.isEmpty {
-            return title
-        }
-        return "\(title)\n\(projectName)"
+        guard !title.isEmpty || !projectName.isEmpty else { return nil }
+        return TooltipInfo(title: title.isEmpty ? "Current Thread" : title, project: projectName)
     }
 
     func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
@@ -657,8 +783,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         if state == "thinking" || state == "tool" {
             if expireStaleActivity && age > staleActivityAge { eff = "idle"; label = "" } // absolute safety net
             else if let tr = stateObject["transcript"] as? String,
-                    let last = lastLine(ofFileAt: tr),
-                    last.contains("interrupted by user") {
+                    (transcriptIndicatesManualStop(path: tr, since: ts) || transcriptIndicatesTurnComplete(path: tr, since: ts)) {
                 eff = "idle"; label = ""
             }
         }
@@ -778,25 +903,83 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
     }
 
-    // Read the last non-empty line of a (possibly large) file by tailing ~8KB.
-    func lastLine(ofFileAt path: String) -> String? {
+    // Read the recent tail of a (possibly large) transcript without loading screenshots.
+    func transcriptTail(ofFileAt path: String, bytes: UInt64 = 192 * 1024) -> String? {
         guard let fh = FileHandle(forReadingAtPath: path) else { return nil }
         defer { try? fh.close() }
         let size = (try? fh.seekToEnd()) ?? 0
-        let chunk: UInt64 = 8192
+        let chunk = bytes
         try? fh.seek(toOffset: size > chunk ? size - chunk : 0)
-        guard let data = try? fh.readToEnd(), let s = String(data: data, encoding: .utf8) else { return nil }
-        return s.split(separator: "\n").last { !$0.isEmpty }.map(String.init)
+        return (try? fh.readToEnd()).flatMap { String(data: $0, encoding: .utf8) }
+    }
+
+    func transcriptIndicatesManualStop(path: String, since ts: Double) -> Bool {
+        guard let tail = transcriptTail(ofFileAt: path) else { return false }
+        let markers = [
+            "interrupted by user",
+            "cancelled by user",
+            "canceled by user",
+            "manually stopped",
+            "stop requested",
+            "turn interrupted",
+            "stream interrupted"
+        ]
+        let lines = tail.split(separator: "\n").suffix(80)
+        for line in lines {
+            let raw = String(line)
+            let lower = raw.lowercased()
+            guard markers.contains(where: { lower.contains($0) }) else { continue }
+            if let data = raw.data(using: .utf8),
+               let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let stamp = isoTimestamp(obj["timestamp"] as? String),
+               stamp.timeIntervalSince1970 + 1 < ts {
+                continue
+            }
+            return true
+        }
+        return false
+    }
+
+    func transcriptIndicatesTurnComplete(path: String, since ts: Double) -> Bool {
+        guard let tail = transcriptTail(ofFileAt: path) else { return false }
+        for line in tail.split(separator: "\n").suffix(120) {
+            guard let data = String(line).data(using: .utf8),
+                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  eventIsAfterState(obj, since: ts) else { continue }
+
+            if let payload = obj["payload"] as? [String: Any] {
+                if payload["type"] as? String == "task_complete" {
+                    return true
+                }
+                if payload["phase"] as? String == "final_answer" {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    func eventIsAfterState(_ obj: [String: Any], since ts: Double) -> Bool {
+        guard let stamp = isoTimestamp(obj["timestamp"] as? String) else { return true }
+        return stamp.timeIntervalSince1970 + 1 >= ts
+    }
+
+    func isoTimestamp(_ raw: String?) -> Date? {
+        guard let raw else { return nil }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter.date(from: raw) ?? ISO8601DateFormatter().date(from: raw)
     }
 
     // MARK: render
 
-    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false, tooltip: String? = nil) {
+    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false, tooltip: TooltipInfo? = nil) {
         guard let button = statusItem.button else { return }
         button.contentTintColor = nil // we paint the icon color ourselves; template-tint is unreliable
         let renderKey = [
             label,
-            tooltip ?? "",
+            tooltip?.title ?? "",
+            tooltip?.project ?? "",
             color?.hexKey ?? "system",
             animate ? "animate" : "still",
             dot ? "dot" : "mark",
@@ -804,7 +987,9 @@ final class StatusController: NSObject, NSMenuDelegate {
         ].joined(separator: "|")
 
         if renderKey == lastRenderKey {
-            button.toolTip = tooltip
+            currentTooltip = tooltip
+            updateHoverTracking()
+            updateTooltipIfVisible()
             applyTitle()
             return
         }
@@ -813,7 +998,10 @@ final class StatusController: NSObject, NSMenuDelegate {
         activeBase = label
         activeColor = color
         self.startedAt = startedAt
-        button.toolTip = tooltip
+        button.toolTip = nil
+        currentTooltip = tooltip
+        if tooltip == nil { tooltipWindow.orderOut(nil) }
+        updateHoverTracking()
 
         if animate {
             if animTimer == nil {
@@ -828,6 +1016,7 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
         applyTitle()
         if button.image == nil { button.image = dot ? dotIcon(color: color, pulse: startedAt > 0) : restingIcon(color: color) }
+        updateTooltipIfVisible()
     }
 
     // Active work breathes each mark, dips small, then swaps to the next mark.
@@ -858,6 +1047,49 @@ final class StatusController: NSObject, NSMenuDelegate {
                 .foregroundColor: NSColor.labelColor
             ]
         )
+        updateHoverTracking()
+    }
+
+    func updateHoverTracking() {
+        guard let button = statusItem.button else { return }
+        guard hoverTrackingArea == nil else { return }
+        let options: NSTrackingArea.Options = [.mouseEnteredAndExited, .activeAlways, .inVisibleRect]
+        let area = NSTrackingArea(rect: .zero, options: options, owner: self, userInfo: nil)
+        button.addTrackingArea(area)
+        hoverTrackingArea = area
+    }
+
+    func mouseEntered(with event: NSEvent) {
+        updateTooltipIfVisible(forceShow: true)
+    }
+
+    func mouseExited(with event: NSEvent) {
+        tooltipWindow.orderOut(nil)
+    }
+
+    func updateTooltipIfVisible(forceShow: Bool = false) {
+        guard let tooltip = currentTooltip, let button = statusItem.button else {
+            tooltipWindow.orderOut(nil)
+            return
+        }
+        guard forceShow || tooltipWindow.isVisible else { return }
+        tooltipWindow.update(info: tooltip)
+        let screenFrame = button.window?.convertToScreen(button.bounds) ?? .zero
+        tooltipWindow.position(near: screenFrame)
+        tooltipWindow.orderFrontRegardless()
+    }
+
+    func colorSwatch(for color: NSColor?) -> NSImage? {
+        guard let color else { return nil }
+        let size = NSSize(width: 12, height: 12)
+        let image = NSImage(size: size, flipped: false) { rect in
+            color.setFill()
+            NSBezierPath(ovalIn: rect.insetBy(dx: 1, dy: 1)).fill()
+            NSColor.separatorColor.setStroke()
+            NSBezierPath(ovalIn: rect.insetBy(dx: 1.25, dy: 1.25)).stroke()
+            return true
+        }
+        return image
     }
 
     func elapsedText(since unixSeconds: Double) -> String {
@@ -1077,6 +1309,12 @@ private extension NSColor {
             c.blueComponent,
             c.alphaComponent
         )
+    }
+}
+
+private extension String {
+    func width(using font: NSFont) -> CGFloat {
+        (self as NSString).size(withAttributes: [.font: font]).width
     }
 }
 
