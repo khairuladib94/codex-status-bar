@@ -167,20 +167,12 @@ final class StatusController: NSObject, NSMenuDelegate {
         let codexMenu = NSMenu()
         let activeId = current["sessionId"] as? String
         let threads = recentThreads()
+        let activeThreads = activeThreads(from: threads, fallbackId: activeId)
 
-        if let activeId {
-            let title = threads.first { $0.id == activeId }?.title
-                ?? current["project"] as? String
-                ?? "Current Thread"
-            addThreadSection(
-                title: "Active",
-                threads: [RecentThread(id: activeId, title: title, updatedAt: "")],
-                to: codexMenu,
-                firstSection: true
-            )
-        }
+        addThreadSection(title: "Active", threads: activeThreads, to: codexMenu, firstSection: true)
 
-        let recent = threads.filter { $0.id != activeId }
+        let activeIds = Set(activeThreads.map(\.id))
+        let recent = threads.filter { !activeIds.contains($0.id) }
         addThreadSection(title: "Recent", threads: Array(recent.prefix(8)), to: codexMenu, firstSection: codexMenu.items.isEmpty)
 
         if !codexMenu.items.isEmpty { codexMenu.addItem(.separator()) }
@@ -257,6 +249,63 @@ final class StatusController: NSObject, NSMenuDelegate {
             if threads.count >= 30 { break }
         }
         return threads
+    }
+
+    func activeThreads(from recent: [RecentThread], fallbackId: String?) -> [RecentThread] {
+        let byId = Dictionary(uniqueKeysWithValues: recent.map { ($0.id, $0) })
+        var seen = Set<String>()
+        var active: [RecentThread] = []
+
+        for id in activeSessionIds() where !seen.contains(id) {
+            seen.insert(id)
+            if let thread = byId[id] {
+                active.append(thread)
+            } else {
+                let title = id == fallbackId
+                    ? ((current["project"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "Current Thread")
+                    : "Current Thread"
+                active.append(RecentThread(id: id, title: title, updatedAt: ""))
+            }
+        }
+
+        if let fallbackId, !seen.contains(fallbackId), isCurrentStateActive() {
+            let title = byId[fallbackId]?.title
+                ?? (current["project"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+                ?? "Current Thread"
+            active.append(RecentThread(id: fallbackId, title: title, updatedAt: ""))
+        }
+
+        return active
+    }
+
+    func activeSessionIds(recentWithin seconds: TimeInterval = 30 * 60) -> [String] {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(atPath: sessionsDir) else { return [] }
+        let staleCutoff = Date().addingTimeInterval(-30 * 60)
+        let recentCutoff = Date().addingTimeInterval(-seconds)
+
+        return files.compactMap { file -> (String, Date)? in
+            let path = (sessionsDir as NSString).appendingPathComponent(file)
+            guard let attrs = try? fm.attributesOfItem(atPath: path),
+                  let modified = attrs[.modificationDate] as? Date else { return nil }
+            if modified < staleCutoff {
+                try? fm.removeItem(atPath: path)
+                return nil
+            }
+            guard modified >= recentCutoff else { return nil }
+            return (file, modified)
+        }
+        .sorted { $0.1 > $1.1 }
+        .map(\.0)
+    }
+
+    func isCurrentStateActive() -> Bool {
+        switch current["state"] as? String {
+        case "thinking", "tool", "permission", "waiting":
+            return true
+        default:
+            return false
+        }
     }
 
     func truncated(_ text: String, max: Int) -> String {

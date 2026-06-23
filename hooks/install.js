@@ -11,12 +11,36 @@ const sbDir = path.join(codexHome, "statusbar");
 const marker = sbDir;
 const updateDest = path.join(sbDir, "update.js");
 const lifecycleDest = path.join(sbDir, "lifecycle.js");
+const appPathDest = path.join(sbDir, "app-path");
 const hooksPath = path.join(codexHome, "hooks.json");
 const node = process.execPath;
+
+function validAppPath(value) {
+  return Boolean(
+    value &&
+    value.endsWith(".app") &&
+    fs.existsSync(path.join(value, "Contents", "MacOS", "CodexStatusBar"))
+  );
+}
+
+function detectAppPath() {
+  const bundled = path.resolve(__dirname, "..", "..");
+  const candidates = [
+    process.env.CODEX_STATUS_BAR_APP,
+    validAppPath(bundled) ? bundled : null,
+    "/Applications/CodexStatusBar.app",
+    path.resolve(__dirname, "..", "build.noindex", "CodexStatusBar.app"),
+    path.resolve(__dirname, "..", "build", "CodexStatusBar.app"),
+  ];
+  return candidates.find(validAppPath) || null;
+}
 
 fs.mkdirSync(sbDir, { recursive: true });
 fs.copyFileSync(path.join(__dirname, "update.js"), updateDest);
 fs.copyFileSync(path.join(__dirname, "lifecycle.js"), lifecycleDest);
+
+const appPath = detectAppPath();
+if (appPath) fs.writeFileSync(appPathDest, appPath + "\n");
 
 const quote = (value) => JSON.stringify(value);
 const cmd = (evt) => `${quote(node)} ${quote(updateDest)} ${evt}`;
@@ -59,4 +83,5 @@ fs.mkdirSync(codexHome, { recursive: true });
 fs.writeFileSync(hooksPath, JSON.stringify(config, null, 2) + "\n");
 console.log("Installed Codex status-bar hooks into", hooksPath);
 console.log("Scripts:", updateDest, "and", lifecycleDest);
+if (appPath) console.log("App:", appPath);
 console.log("Backup (first run only):", hooksPath + ".bak-statusbar");

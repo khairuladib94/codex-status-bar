@@ -28,7 +28,7 @@ Build the app:
 ./build.sh
 ```
 
-Then open `build/CodexStatusBar.app` once. On first launch it installs hooks into:
+Then open `build.noindex/CodexStatusBar.app` once. The `.noindex` build folder keeps the local build artifact out of Spotlight-style app pickers. On first launch it installs hooks into:
 
 ```text
 $CODEX_HOME/hooks.json
@@ -59,7 +59,7 @@ The left-click menu also includes display controls:
 
 The helper tries, in order:
 
-1. `codex app-server proxy` with `account/rateLimits/read`
+1. `codex app-server --stdio` with `account/rateLimits/read`
 2. `$CODEX_HOME/multi-auth/quota-cache.json`
 3. A fallback message telling you to open Codex and run `/status`
 
@@ -92,7 +92,7 @@ node "/Applications/CodexStatusBar.app/Contents/Resources/uninstall.js"
 or, from a local build:
 
 ```bash
-node "build/CodexStatusBar.app/Contents/Resources/uninstall.js"
+node "build.noindex/CodexStatusBar.app/Contents/Resources/uninstall.js"
 ```
 
 Then remove the app. The uninstaller removes only hook commands pointing inside `$CODEX_HOME/statusbar/`.
@@ -104,7 +104,7 @@ Then remove the app. The uninstaller removes only hook commands pointing inside 
 ./build.sh --dmg
 ```
 
-`./build.sh` creates `build/CodexStatusBar.app`. `--dmg` creates `build/CodexStatusBar.dmg`.
+`./build.sh` creates `build.noindex/CodexStatusBar.app`. `--dmg` creates `build.noindex/CodexStatusBar.dmg`.
 
 Signing is optional for local builds. To produce a Developer ID build, set:
 

@@ -3,7 +3,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="build/CodexStatusBar.app"
+BUILD_DIR="build.noindex"
+APP="$BUILD_DIR/CodexStatusBar.app"
 BIN="$APP/Contents/MacOS/CodexStatusBar"
 
 rm -rf "$APP"
@@ -72,26 +73,26 @@ if [[ "${1:-}" == "--dmg" ]]; then
   # actually hits, so the image must carry its own ticket to open without a warning.
   if [[ "${SKIP_NOTARIZE:-}" != "1" && -n "$SIGN_ID" ]]; then
     echo "Notarizing the app via profile '$NOTARY_PROFILE' (can take a minute)…"
-    rm -f build/app-notarize.zip
-    ditto -c -k --keepParent "$APP" build/app-notarize.zip
-    xcrun notarytool submit build/app-notarize.zip --keychain-profile "$NOTARY_PROFILE" --wait
+    rm -f "$BUILD_DIR/app-notarize.zip"
+    ditto -c -k --keepParent "$APP" "$BUILD_DIR/app-notarize.zip"
+    xcrun notarytool submit "$BUILD_DIR/app-notarize.zip" --keychain-profile "$NOTARY_PROFILE" --wait
     xcrun stapler staple "$APP"
-    rm -f build/app-notarize.zip
+    rm -f "$BUILD_DIR/app-notarize.zip"
     echo "App notarized + stapled."
   fi
 
   echo "Packaging DMG…"
-  DMG="build/CodexStatusBar.dmg"
-  STAGE="build/dmg-stage"
-  rm -rf "$STAGE" "$DMG" build/rw.dmg
+  DMG="$BUILD_DIR/CodexStatusBar.dmg"
+  STAGE="$BUILD_DIR/dmg-stage"
+  rm -rf "$STAGE" "$DMG" "$BUILD_DIR/rw.dmg"
   mkdir -p "$STAGE"
   cp -R "$APP" "$STAGE/"
   ln -s /Applications "$STAGE/Applications"
 
   # Lay out the window on a read-write image to capture its .DS_Store, then build the final
   # image from the folder (see below).
-  hdiutil create -volname "Codex Status Bar" -srcfolder "$STAGE" -ov -format UDRW build/rw.dmg >/dev/null
-  device="$(hdiutil attach -readwrite -noverify -noautoopen build/rw.dmg | grep -E '^/dev/' | head -1 | awk '{print $1}')"
+  hdiutil create -volname "Codex Status Bar" -srcfolder "$STAGE" -ov -format UDRW "$BUILD_DIR/rw.dmg" >/dev/null
+  device="$(hdiutil attach -readwrite -noverify -noautoopen "$BUILD_DIR/rw.dmg" | grep -E '^/dev/' | head -1 | awk '{print $1}')"
   sleep 1
   osascript <<'OSA' || echo "(Finder layout skipped — DMG still has the app + Applications shortcut)"
 tell application "Finder"
@@ -120,7 +121,7 @@ OSA
   # fseventsd logs, which recreates the folder.)
   cp "/Volumes/Codex Status Bar/.DS_Store" "$STAGE/.DS_Store" 2>/dev/null || true
   hdiutil detach "$device" >/dev/null || true
-  rm -f build/rw.dmg
+  rm -f "$BUILD_DIR/rw.dmg"
   hdiutil create -volname "Codex Status Bar" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
   rm -rf "$STAGE"
 

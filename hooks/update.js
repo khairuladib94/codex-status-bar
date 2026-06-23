@@ -44,7 +44,9 @@ function touchSession(payload) {
   try {
     const sessDir = path.join(dir, "sessions.d");
     fs.mkdirSync(sessDir, { recursive: true });
-    fs.writeFileSync(path.join(sessDir, id), "");
+    const sessionPath = path.join(sessDir, id);
+    if (event === "stop") fs.rmSync(sessionPath, { force: true });
+    else fs.writeFileSync(sessionPath, "");
   } catch {}
 }
 

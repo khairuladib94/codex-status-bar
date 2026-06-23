@@ -12,6 +12,7 @@ const EXEC = "CodexStatusBar";
 const codexHome = process.env.CODEX_HOME || path.join(os.homedir(), ".codex");
 const dir = path.join(codexHome, "statusbar");
 const sessDir = path.join(dir, "sessions.d");
+const appPathFile = path.join(dir, "app-path");
 
 fs.mkdirSync(sessDir, { recursive: true });
 
@@ -46,6 +47,17 @@ function run() {
   }
 
   try { fs.writeFileSync(path.join(sessDir, id), ""); } catch {}
-  cp.spawn("open", ["-g", "-b", BUNDLE_ID], { stdio: "ignore", detached: true }).unref();
+  let launched = false;
+  try {
+    const appPath = fs.readFileSync(appPathFile, "utf8").trim();
+    if (appPath && fs.existsSync(appPath)) {
+      cp.spawn("open", ["-g", appPath], { stdio: "ignore", detached: true }).unref();
+      launched = true;
+    }
+  } catch {}
+
+  if (!launched) {
+    cp.spawn("open", ["-g", "-b", BUNDLE_ID], { stdio: "ignore", detached: true }).unref();
+  }
   process.exit(0);
 }

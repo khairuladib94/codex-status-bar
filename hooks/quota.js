@@ -111,24 +111,100 @@ function chooseRateLimit(payload) {
 }
 
 function callAppServer() {
-  const request = JSON.stringify({ id: 1, method: "account/rateLimits/read", params: null }) + "\n";
-  const result = cp.spawnSync("codex", ["app-server", "proxy"], {
-    input: request,
-    encoding: "utf8",
-    timeout: 6000,
-    env: { ...process.env, CODEX_HOME: codexHome },
-  });
-  if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error((result.stderr || `codex app-server proxy exited ${result.status}`).trim());
+  return new Promise((resolve, reject) => {
+    const codexBin = process.env.CODEX_CLI_PATH || "codex";
+    const child = cp.spawn(codexBin, ["app-server", "--stdio"], {
+      stdio: ["pipe", "pipe", "pipe"],
+      env: { ...process.env, CODEX_HOME: codexHome },
+    });
 
-  const lines = String(result.stdout || "").trim().split(/\r?\n/).filter(Boolean);
-  for (const line of lines) {
-    let msg;
-    try { msg = JSON.parse(line); } catch { continue; }
-    if (msg.id === 1 && msg.result) return msg.result;
-    if (msg.id === 1 && msg.error) throw new Error(msg.error.message || "app-server quota request failed");
-  }
-  throw new Error("app-server quota response was empty");
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    let sentQuotaRequest = false;
+
+    const timer = setTimeout(() => {
+      fail(new Error("app-server quota request timed out"));
+    }, 8000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      child.stdout?.removeAllListeners();
+      child.stderr?.removeAllListeners();
+      child.removeAllListeners();
+      if (!child.killed) child.kill();
+    }
+
+    function done(value) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(value);
+    }
+
+    function fail(error) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    }
+
+    function send(message) {
+      child.stdin.write(JSON.stringify(message) + "\n");
+    }
+
+    function sendQuotaRequest() {
+      if (sentQuotaRequest) return;
+      sentQuotaRequest = true;
+      send({ id: 1, method: "account/rateLimits/read" });
+    }
+
+    child.on("error", fail);
+    child.on("exit", (code, signal) => {
+      if (!settled && code !== 0) {
+        fail(new Error((stderr || `codex app-server exited ${code ?? signal}`).trim()));
+      }
+    });
+
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString();
+      const lines = stdout.split(/\r?\n/);
+      stdout = lines.pop() || "";
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        let msg;
+        try { msg = JSON.parse(line); } catch { continue; }
+
+        if (msg.id === 0 && msg.result) {
+          send({ method: "initialized" });
+          setTimeout(sendQuotaRequest, 100);
+          continue;
+        }
+        if (msg.id === 1 && msg.result) {
+          done(msg.result);
+          return;
+        }
+        if (msg.id === 1 && msg.error) {
+          fail(new Error(msg.error.message || "app-server quota request failed"));
+          return;
+        }
+      }
+    });
+
+    send({
+      id: 0,
+      method: "initialize",
+      params: {
+        clientInfo: { name: "codex-status-bar", version: "0.1.0" },
+        capabilities: {},
+      },
+    });
+  });
 }
 
 function readCache() {
@@ -141,10 +217,10 @@ function readCache() {
   return ok[0];
 }
 
-function main() {
+async function main() {
   const errors = [];
   try {
-    const payload = callAppServer();
+    const payload = await callAppServer();
     const normalized = normalizeSnapshot(chooseRateLimit(payload), "app-server");
     if (normalized) {
       process.stdout.write(JSON.stringify(normalized) + "\n");
@@ -174,4 +250,11 @@ function main() {
   }) + "\n");
 }
 
-main();
+main().catch((error) => {
+  process.stdout.write(JSON.stringify({
+    source: "unavailable",
+    error: error.message,
+    message: "Live quota unavailable",
+    details: "Open Codex Usage remaining for current limits.",
+  }) + "\n");
+});
