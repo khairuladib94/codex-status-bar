@@ -135,6 +135,37 @@ function sessionPathFor(payload) {
   }
 }
 
+function isProjectlessCwd(cwd) {
+  if (!cwd) return false;
+  const scratchRoot = path.join(os.homedir(), "Documents", "Codex");
+  const relative = path.relative(scratchRoot, path.resolve(cwd));
+  if (relative.startsWith("..") || path.isAbsolute(relative)) return false;
+  const parts = relative.split(path.sep).filter(Boolean);
+  return parts.length === 2 && /^\d{4}-\d{2}-\d{2}$/.test(parts[0]);
+}
+
+function cwdFromTranscript(file) {
+  if (!file) return "";
+  try {
+    const fd = fs.openSync(file, "r");
+    try {
+      const buffer = Buffer.alloc(256 * 1024);
+      const bytes = fs.readSync(fd, buffer, 0, buffer.length, 0);
+      const lines = buffer.toString("utf8", 0, bytes).split(/\r?\n/);
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const record = JSON.parse(line);
+        if (record.type === "turn_context" && record.payload && record.payload.cwd) {
+          return record.payload.cwd;
+        }
+      }
+    } finally {
+      fs.closeSync(fd);
+    }
+  } catch {}
+  return "";
+}
+
 let raw = "";
 process.stdin.on("data", (d) => (raw += d));
 process.stdin.on("end", run);
@@ -172,7 +203,10 @@ function run() {
     } catch {}
   }
 
-  const project = p.cwd ? path.basename(p.cwd) : prev.project || "";
+  const transcript = p.transcript_path || p.transcript || prev.transcript || "";
+  const cwd = p.cwd || cwdFromTranscript(transcript) || prev.cwd || "";
+  const project = cwd ? path.basename(cwd) : prev.project || "";
+  const projectless = cwd ? isProjectlessCwd(cwd) : Boolean(prev.projectless);
   const ts = Math.floor(Date.now() / 1000);
   const tool = toolName(p);
   let state = "idle";
@@ -226,8 +260,10 @@ function run() {
     label,
     tool,
     project,
+    projectless,
+    cwd,
     sessionId: p.session_id || p.thread_id || p.threadId || "",
-    transcript: p.transcript_path || p.transcript || prev.transcript || "",
+    transcript,
     startedAt,
     previousStartedAt,
     ts,

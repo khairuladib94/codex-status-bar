@@ -718,7 +718,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     func evaluate() {
         let threads = recentThreads()
         let selected = visibleActiveSessionState() ?? effectiveState(from: current).map {
-            ($0.state, $0.label, $0.startedAt, current["project"] as? String ?? "", current["sessionId"] as? String ?? "")
+            ($0.state, $0.label, $0.startedAt, current["project"] as? String ?? "", projectlessState(current), current["sessionId"] as? String ?? "")
         }
         guard let selected else {
             render(label: "", color: iconColor, animate: false, startedAt: 0, tooltip: nil)
@@ -730,7 +730,8 @@ final class StatusController: NSObject, NSMenuDelegate {
         let started = selected.startedAt
         let tooltip = tooltipInfo(
             threadTitle: threadTitle(for: selected.sessionId, from: threads),
-            project: selected.project
+            project: selected.project,
+            projectless: selected.projectless
         )
 
         switch eff {
@@ -752,20 +753,21 @@ final class StatusController: NSObject, NSMenuDelegate {
         return TransitionSpeed.normal.framesPerIcon
     }
 
-    func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String, sessionId: String)? {
+    func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String, projectless: Bool, sessionId: String)? {
         activeSessionStatuses()
-            .compactMap { status -> (state: String, label: String, startedAt: Double, project: String, sessionId: String, sortTime: Double)? in
+            .compactMap { status -> (state: String, label: String, startedAt: Double, project: String, projectless: Bool, sessionId: String, sortTime: Double)? in
                 guard let eff = effectiveState(from: status.state) else { return nil }
                 let started = eff.startedAt
                 let ts = (status.state["ts"] as? NSNumber)?.doubleValue ?? 0
                 let sortTime = started > 0 ? started : (ts > 0 ? ts : status.modified.timeIntervalSince1970)
                 let project = status.state["project"] as? String ?? ""
+                let projectless = projectlessState(status.state)
                 let sessionId = status.state["sessionId"] as? String ?? status.id
-                return (eff.state, eff.label, started, project, sessionId, sortTime)
+                return (eff.state, eff.label, started, project, projectless, sessionId, sortTime)
             }
             .sorted { $0.sortTime > $1.sortTime }
             .first
-            .map { ($0.state, $0.label, $0.startedAt, $0.project, $0.sessionId) }
+            .map { ($0.state, $0.label, $0.startedAt, $0.project, $0.projectless, $0.sessionId) }
     }
 
     func displayLabel(statusLabel: String) -> String {
@@ -777,10 +779,10 @@ final class StatusController: NSObject, NSMenuDelegate {
         return threads.first { $0.id == sessionId }?.title
     }
 
-    func tooltipInfo(threadTitle: String?, project: String) -> TooltipInfo? {
+    func tooltipInfo(threadTitle: String?, project: String, projectless: Bool) -> TooltipInfo? {
         let title = (threadTitle ?? "Current Thread").trimmingCharacters(in: .whitespacesAndNewlines)
         let rawProjectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isProjectless = rawProjectName.isEmpty || rawProjectName == "i"
+        let isProjectless = projectless || rawProjectName.isEmpty || rawProjectName == "i"
         let projectName = isProjectless ? "Chat" : rawProjectName
         guard !title.isEmpty || !projectName.isEmpty else { return nil }
         return TooltipInfo(
@@ -788,6 +790,45 @@ final class StatusController: NSObject, NSMenuDelegate {
             project: projectName,
             projectKind: isProjectless ? .chat : .project
         )
+    }
+
+    func projectlessState(_ stateObject: [String: Any]) -> Bool {
+        if stateObject["projectless"] as? Bool == true { return true }
+        if let cwd = stateObject["cwd"] as? String, isProjectlessCwd(cwd) { return true }
+        if let transcript = stateObject["transcript"] as? String,
+           let cwd = cwdFromTranscript(path: transcript),
+           isProjectlessCwd(cwd) {
+            return true
+        }
+        return false
+    }
+
+    func isProjectlessCwd(_ cwd: String) -> Bool {
+        let root = ((NSHomeDirectory() as NSString).appendingPathComponent("Documents/Codex") as NSString).standardizingPath + "/"
+        let path = (cwd as NSString).standardizingPath
+        guard path.hasPrefix(root) else { return false }
+        let parts = path.dropFirst(root.count).split(separator: "/")
+        guard parts.count == 2 else { return false }
+        return String(parts[0]).range(of: #"^\d{4}-\d{2}-\d{2}$"#, options: .regularExpression) != nil
+    }
+
+    func cwdFromTranscript(path: String) -> String? {
+        guard let handle = FileHandle(forReadingAtPath: path) else { return nil }
+        defer { try? handle.close() }
+        let data = handle.readData(ofLength: 256 * 1024)
+        guard let text = String(data: data, encoding: .utf8) else { return nil }
+        for line in text.split(whereSeparator: \.isNewline) {
+            guard let lineData = String(line).data(using: .utf8),
+                  let obj = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
+                  obj["type"] as? String == "turn_context",
+                  let payload = obj["payload"] as? [String: Any],
+                  let cwd = payload["cwd"] as? String,
+                  !cwd.isEmpty else {
+                continue
+            }
+            return cwd
+        }
+        return nil
     }
 
     func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
