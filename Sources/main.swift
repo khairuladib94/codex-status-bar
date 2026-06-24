@@ -4,12 +4,19 @@ import Cocoa
 // compact activity indicator in the macOS menu bar. No window, no dock icon.
 
 struct TooltipInfo: Equatable {
+    enum ProjectKind: Equatable {
+        case project
+        case chat
+    }
+
     let title: String
     let project: String
+    let projectKind: ProjectKind
 }
 
 final class TooltipWindow: NSPanel {
     private let titleLabel = NSTextField(labelWithString: "")
+    private let projectIcon = NSImageView()
     private let projectLabel = NSTextField(labelWithString: "")
 
     init() {
@@ -47,7 +54,18 @@ final class TooltipWindow: NSPanel {
         projectLabel.lineBreakMode = .byTruncatingTail
         projectLabel.maximumNumberOfLines = 1
 
-        let labels = NSStackView(views: [titleLabel, projectLabel])
+        projectIcon.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 10.5, weight: .medium)
+        projectIcon.contentTintColor = .secondaryLabelColor.withAlphaComponent(0.75)
+        projectIcon.imageScaling = .scaleProportionallyDown
+        projectIcon.translatesAutoresizingMaskIntoConstraints = false
+
+        let projectRow = NSStackView(views: [projectIcon, projectLabel])
+        projectRow.orientation = .horizontal
+        projectRow.spacing = 5
+        projectRow.alignment = .centerY
+        projectRow.distribution = .fill
+
+        let labels = NSStackView(views: [titleLabel, projectRow])
         labels.orientation = .vertical
         labels.spacing = 2
         labels.alignment = .leading
@@ -67,17 +85,21 @@ final class TooltipWindow: NSPanel {
             stack.trailingAnchor.constraint(equalTo: glass.trailingAnchor),
             stack.topAnchor.constraint(equalTo: glass.topAnchor),
             stack.bottomAnchor.constraint(equalTo: glass.bottomAnchor),
+            projectIcon.widthAnchor.constraint(equalToConstant: 12),
+            projectIcon.heightAnchor.constraint(equalToConstant: 12),
             labels.widthAnchor.constraint(lessThanOrEqualToConstant: 320)
         ])
     }
 
     func update(info: TooltipInfo) {
         titleLabel.stringValue = info.title
-        projectLabel.stringValue = info.project.isEmpty ? "No project" : info.project
+        projectIcon.image = NSImage(systemSymbolName: info.projectKind == .chat ? "bubble.left" : "folder", accessibilityDescription: nil)
+        projectLabel.stringValue = info.project
 
         let titleWidth = info.title.width(using: titleLabel.font ?? .systemFont(ofSize: 13))
         let projectWidth = projectLabel.stringValue.width(using: projectLabel.font ?? .systemFont(ofSize: 11))
-        let width = min(max(max(titleWidth, projectWidth) + 36, 170), 360)
+        let iconRowWidth = projectWidth + 17
+        let width = min(max(max(titleWidth, iconRowWidth) + 36, 170), 360)
         setContentSize(NSSize(width: width, height: 58))
     }
 
@@ -145,14 +167,15 @@ final class StatusController: NSObject, NSMenuDelegate {
     var quotaRefreshID = 0
 
     // Active work cycles through generated Codex marks, shrinking before each swap.
-    enum TransitionSpeed: String {
-        case slow, normal, fast
+    enum TransitionSpeed: String, CaseIterable {
+        case slow, normal, fast, dynamic
 
         var title: String {
             switch self {
             case .slow: return "Slow"
             case .normal: return "Normal"
             case .fast: return "Fast"
+            case .dynamic: return "Dynamic"
             }
         }
 
@@ -161,6 +184,7 @@ final class StatusController: NSObject, NSMenuDelegate {
             case .slow: return 72
             case .normal: return 48
             case .fast: return 30
+            case .dynamic: return 48
             }
         }
     }
@@ -201,9 +225,9 @@ final class StatusController: NSObject, NSMenuDelegate {
     var showTimer = true
     var showPausedTimer = true
     var iconColor: NSColor? { colorScheme.color } // nil => render as an adaptive system template
-    var framesPerIcon: Int { transitionSpeed.framesPerIcon }
+    var activeFramesPerIcon = TransitionSpeed.normal.framesPerIcon
     let iconSwapDip: CGFloat = 0.18
-    var frameCount: Int { max(1, codexActiveTemplates.count * framesPerIcon) }
+    var frameCount: Int { max(1, codexActiveTemplates.count * activeFramesPerIcon) }
     let fps: Double = 24
 
     override init() {
@@ -295,7 +319,7 @@ final class StatusController: NSObject, NSMenuDelegate {
 
         let speedItem = NSMenuItem(title: "Animation Speed", action: nil, keyEquivalent: "")
         let speedMenu = NSMenu()
-        for speed in [TransitionSpeed.slow, .normal, .fast] {
+        for speed in TransitionSpeed.allCases {
             let it = NSMenuItem(title: speed.title, action: #selector(chooseTransitionSpeed(_:)), keyEquivalent: "")
             it.target = self
             it.representedObject = speed.rawValue
@@ -710,12 +734,22 @@ final class StatusController: NSObject, NSMenuDelegate {
         )
 
         switch eff {
-        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip)
-        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip)
+        case "thinking":  render(label: label.isEmpty ? "Thinking..." : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip, animationFramesPerIcon: framesPerIcon(for: eff, startedAt: started))
+        case "tool":      render(label: label.isEmpty ? "Working..."  : label, color: iconColor, animate: true,  startedAt: started, tooltip: tooltip, animationFramesPerIcon: framesPerIcon(for: eff, startedAt: started))
         case "permission":render(label: label.isEmpty ? "Awaiting permission" : label, color: .systemYellow, animate: false, startedAt: showPausedTimer ? started : 0, dot: true, tooltip: tooltip)
         case "waiting":   render(label: label.isEmpty ? "Needs input" : label, color: .systemBlue, animate: false, startedAt: showPausedTimer ? started : 0, dot: true, tooltip: tooltip)
         default:          render(label: "", color: iconColor, animate: false, startedAt: 0, tooltip: nil)
         }
+    }
+
+    func framesPerIcon(for state: String, startedAt: Double) -> Int {
+        guard transitionSpeed == .dynamic else { return transitionSpeed.framesPerIcon }
+        if state == "tool" { return TransitionSpeed.fast.framesPerIcon }
+        let elapsed = startedAt > 0 ? Date().timeIntervalSince1970 - startedAt : 0
+        // ponytail: three cheap buckets; add richer phase detection only if users can feel it.
+        if elapsed < 15 { return TransitionSpeed.fast.framesPerIcon }
+        if elapsed > 90 { return TransitionSpeed.slow.framesPerIcon }
+        return TransitionSpeed.normal.framesPerIcon
     }
 
     func visibleActiveSessionState() -> (state: String, label: String, startedAt: Double, project: String, sessionId: String)? {
@@ -745,9 +779,15 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     func tooltipInfo(threadTitle: String?, project: String) -> TooltipInfo? {
         let title = (threadTitle ?? "Current Thread").trimmingCharacters(in: .whitespacesAndNewlines)
-        let projectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawProjectName = project.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isProjectless = rawProjectName.isEmpty || rawProjectName == "i"
+        let projectName = isProjectless ? "Chat" : rawProjectName
         guard !title.isEmpty || !projectName.isEmpty else { return nil }
-        return TooltipInfo(title: title.isEmpty ? "Current Thread" : title, project: projectName)
+        return TooltipInfo(
+            title: title.isEmpty ? "Current Thread" : title,
+            project: projectName,
+            projectKind: isProjectless ? .chat : .project
+        )
     }
 
     func effectiveState(from stateObject: [String: Any], expireStaleActivity: Bool = true) -> (state: String, label: String, startedAt: Double)? {
@@ -962,17 +1002,20 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     // MARK: render
 
-    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false, tooltip: TooltipInfo? = nil) {
+    func render(label: String, color: NSColor?, animate: Bool, startedAt: Double, dot: Bool = false, tooltip: TooltipInfo? = nil, animationFramesPerIcon: Int? = nil) {
         guard let button = statusItem.button else { return }
         button.contentTintColor = nil // we paint the icon color ourselves; template-tint is unreliable
+        let nextFramesPerIcon = animationFramesPerIcon ?? transitionSpeed.framesPerIcon
         let renderKey = [
             label,
             tooltip?.title ?? "",
             tooltip?.project ?? "",
+            tooltip?.projectKind == .chat ? "chat" : "project",
             color?.hexKey ?? "system",
             animate ? "animate" : "still",
             dot ? "dot" : "mark",
-            String(Int(startedAt))
+            String(Int(startedAt)),
+            String(nextFramesPerIcon)
         ].joined(separator: "|")
 
         if renderKey == lastRenderKey {
@@ -984,6 +1027,8 @@ final class StatusController: NSObject, NSMenuDelegate {
         }
 
         lastRenderKey = renderKey
+        if activeFramesPerIcon != nextFramesPerIcon { frameIdx = 0 }
+        activeFramesPerIcon = nextFramesPerIcon
         activeBase = label
         activeColor = color
         self.startedAt = startedAt
@@ -1222,7 +1267,7 @@ final class StatusController: NSObject, NSMenuDelegate {
     }
 
     func iconImage(color: NSColor?, frame: Int) -> NSImage {
-        let local = (CGFloat(frame % framesPerIcon) + 0.5) / CGFloat(framesPerIcon)
+        let local = (CGFloat(frame % activeFramesPerIcon) + 0.5) / CGFloat(activeFramesPerIcon)
         let progress = CGFloat(frame % frameCount) / CGFloat(frameCount)
         let env = morphEnvelope(local)
         let scale = iconSwapDip + (1.06 - iconSwapDip) * env
@@ -1254,7 +1299,7 @@ final class StatusController: NSObject, NSMenuDelegate {
 
     func iconTemplate(for frame: Int) -> NSImage {
         guard !codexActiveTemplates.isEmpty else { return codexTemplate }
-        return codexActiveTemplates[(frame / framesPerIcon) % codexActiveTemplates.count]
+        return codexActiveTemplates[(frame / activeFramesPerIcon) % codexActiveTemplates.count]
     }
 
     // Draw the Codex template mark about center. A nil color produces an adaptive

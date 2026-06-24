@@ -53,7 +53,7 @@ project name.
 Right-click the menu bar icon for Codex Status Bar settings:
 
 - **Color** for System, Codex Green, Blue, Purple, Pink, Orange, Red, or Graphite
-- **Animation Speed**
+- **Animation Speed** for Slow, Normal, Fast, or Dynamic
 - **Show Status Text**
 - **Show Elapsed Time**
 - **Show Paused Elapsed Time** for permission/input pauses
